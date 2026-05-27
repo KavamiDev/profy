@@ -5,11 +5,11 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Pricing — Profyl",
-  description: "Free, Pro ou Studio. Choisis ton plan Profyl."
+  description: "Gratuit ou Pro à 5 €/mois. Pas de complication."
 };
 
 type Plan = {
-  key: "free" | "pro" | "studio";
+  key: "free" | "pro";
   name: string;
   tagline: string;
   price: { monthly: string; annual?: string };
@@ -33,47 +33,32 @@ const plans: Plan[] = [
       "9 blocs : photo, expériences, projets, langues...",
       "QR code partageable",
       "6 expériences · 4 formations · 6 projets",
-      "Mises à jour illimitées",
+      "Modifications illimitées à vie",
       "Hébergé en France 🇫🇷"
     ],
-    notIncluded: ["Pas de domaine custom", "Petit watermark Profyl en bas de page", "Sections plafonnées"]
+    notIncluded: [
+      "Petit watermark Profyl en bas de page",
+      "Limites de sections sur Free"
+    ]
   },
   {
     key: "pro",
     name: "Pro",
-    tagline: "Quand le CV doit faire le job à ta place.",
+    tagline: "Quand ton CV doit faire le job à ta place.",
     price: { monthly: "5 €", annual: "50 €" },
     cta: { label: "Passer en Pro", href: "/dashboard?upgrade=pro" },
     highlight: true,
     icon: Zap,
     features: [
       "Tout de Free, plus :",
-      "Domaine custom (jean-dupont.fr)",
+      "Connecte ton domaine perso (jean-dupont.fr)",
       "Export PDF print-ready A4",
       "Aucun watermark",
-      "Sections illimitées (exp / formations / projets)",
-      "Analytics : vues, source, recruteurs",
+      "Sections illimitées",
+      "Plusieurs profils (FR/EN, dev/manager...)",
       "Bloc vidéo intro (Loom / YouTube)",
       "Image OG personnalisée pour LinkedIn",
       "Support email prioritaire"
-    ]
-  },
-  {
-    key: "studio",
-    name: "Studio",
-    tagline: "Pour les freelances et cadres qui pilotent leur image.",
-    price: { monthly: "12 €", annual: "120 €" },
-    cta: { label: "Choisir Studio", href: "/dashboard?upgrade=studio" },
-    icon: Star,
-    features: [
-      "Tout de Pro, plus :",
-      "Multiples profils (FR/EN, dev/manager...)",
-      "A/B test 2 versions de profil",
-      "Import LinkedIn automatique",
-      "Custom slug (profyl.io/jean/cv-2026)",
-      "Lien tracking par recruteur",
-      "API access (read-only)",
-      "Support email + Slack privé"
     ]
   }
 ];
@@ -84,12 +69,20 @@ const faqs = [
     a: "10 minutes. Tu remplis 9 blocs guidés, on s'occupe du design. Tu peux modifier à vie."
   },
   {
-    q: "Le domaine custom, c'est inclus dans le Pro ?",
-    a: "Pointer ton domaine vers Profyl est inclus. L'achat du nom de domaine reste à ta charge (~10 €/an chez Gandi, OVH, Namecheap...)."
+    q: "Comment marche le domaine custom ?",
+    a: "Tu achètes ton domaine (jean-dupont.fr ou autre) chez Gandi, OVH, Namecheap... pour environ 10 €/an. Dans Profyl tu colles le nom, on te donne les enregistrements DNS à configurer chez ton registrar (un simple CNAME). Ta page Profyl devient accessible sur ton domaine en 1 à 24h. Si le domaine est déjà pris, on te suggère des alternatives proches (autres extensions, sans tirets, etc)."
+  },
+  {
+    q: "Et si mon nom de domaine est pris ?",
+    a: "C'est fréquent : il y a 4 Jean Dupont sur LinkedIn 😅. On t'aide à trouver une alternative — autre extension (.com, .pro, .dev), sans tiret (jeandupont.fr), avec un mot ajouté (jeandupont-design.fr). Ou tu peux rester sur profyl.io/jean-dupont, ça marche très bien."
+  },
+  {
+    q: "Plusieurs profils, ça sert à quoi ?",
+    a: "Pratique si tu as 2 casquettes : un profil dev en anglais (profyl.io/jean-dev), un autre management en français (profyl.io/jean-manager), un troisième pour ton activité de freelance. Tu ne payes qu'une fois 5 €/mois."
   },
   {
     q: "Je peux annuler mon abonnement quand ?",
-    a: "Quand tu veux, en un clic depuis ton compte. Pas de durée d'engagement. Tu repasses en Free, ton profil reste en ligne."
+    a: "Quand tu veux, en un clic depuis ton compte. Pas de durée d'engagement. Tu repasses en Free, ton profil reste en ligne (juste plafonné aux limites Free)."
   },
   {
     q: "Mes données sont en France ?",
@@ -153,20 +146,20 @@ export default function PricingPage() {
             Pas de surprise.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-[var(--muted-strong)]">
-            Commence gratuitement. Passe en Pro quand ton CV mérite un domaine
-            qui claque. Annule quand tu veux.
+            Commence gratuitement. Passe en Pro le jour où ton CV mérite
+            ton propre domaine. Annule quand tu veux.
           </p>
         </section>
 
         {/* ---------- PLANS ---------- */}
         <section className="px-6 pb-24 md:pb-32">
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3 md:gap-5">
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
             {plans.map((plan) => (
               <PlanCard key={plan.key} plan={plan} />
             ))}
           </div>
 
-          {/* Money back / écoles */}
+          {/* Reassurance strip */}
           <div className="mx-auto mt-10 flex max-w-2xl flex-col items-center gap-3 text-center text-sm text-[var(--muted)] sm:flex-row sm:justify-center sm:gap-6">
             <span className="inline-flex items-center gap-2">
               <Check className="h-4 w-4 text-[var(--accent-4)]" />
@@ -185,10 +178,10 @@ export default function PricingPage() {
 
         {/* ---------- COMPARISON ---------- */}
         <section className="section-warm relative overflow-hidden border-y border-[var(--border)] py-20 md:py-28">
-          <div className="mx-auto max-w-5xl px-6">
+          <div className="mx-auto max-w-4xl px-6">
             <div className="text-center">
               <p className="hero-eyebrow">Détail</p>
-              <h2 className="section-title mt-3">Le comparatif complet</h2>
+              <h2 className="section-title mt-3">Le comparatif</h2>
             </div>
 
             <div className="mt-12 overflow-x-auto rounded-3xl border border-[var(--border)] bg-white shadow-[var(--shadow-md)]">
@@ -198,23 +191,21 @@ export default function PricingPage() {
                     <th className="p-4 text-left font-medium text-[var(--muted)]">Limites</th>
                     <th className="p-4 text-center font-semibold">Free</th>
                     <th className="p-4 text-center font-semibold text-[var(--accent)]">Pro</th>
-                    <th className="p-4 text-center font-semibold">Studio</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
                   {[
-                    { label: "Expériences", free: "6", pro: "Illimité", studio: "Illimité" },
-                    { label: "Formations", free: "4", pro: "Illimité", studio: "Illimité" },
-                    { label: "Projets", free: "6", pro: "Illimité", studio: "Illimité" },
-                    { label: "Compétences", free: "15", pro: "Illimité", studio: "Illimité" },
-                    { label: "Domaine custom", free: "—", pro: "✓", studio: "✓" },
-                    { label: "Export PDF", free: "—", pro: "✓", studio: "✓" },
-                    { label: "Sans watermark", free: "—", pro: "✓", studio: "✓" },
-                    { label: "Analytics", free: "Vues seulement", pro: "Détaillées", studio: "+ source recruteur" },
-                    { label: "Profils multiples", free: "1", pro: "1", studio: "5" },
-                    { label: "A/B test", free: "—", pro: "—", studio: "✓" },
-                    { label: "Import LinkedIn", free: "—", pro: "—", studio: "✓" },
-                    { label: "API access", free: "—", pro: "—", studio: "Read-only" }
+                    { label: "Expériences", free: "6", pro: "Illimité" },
+                    { label: "Formations", free: "4", pro: "Illimité" },
+                    { label: "Projets", free: "6", pro: "Illimité" },
+                    { label: "Compétences", free: "15", pro: "Illimité" },
+                    { label: "Domaine perso connecté", free: "—", pro: "✓" },
+                    { label: "Profils multiples", free: "1", pro: "Jusqu'à 5" },
+                    { label: "Export PDF", free: "—", pro: "✓" },
+                    { label: "Sans watermark", free: "—", pro: "✓" },
+                    { label: "Bloc vidéo intro", free: "—", pro: "✓" },
+                    { label: "Image OG personnalisée", free: "—", pro: "✓" },
+                    { label: "Support email", free: "Communautaire", pro: "Prioritaire" }
                   ].map((row) => (
                     <tr key={row.label}>
                       <td className="p-4 font-medium text-[var(--foreground)]">{row.label}</td>
@@ -222,7 +213,6 @@ export default function PricingPage() {
                       <td className="bg-[var(--accent-soft)]/50 p-4 text-center font-medium text-[var(--accent-deep)]">
                         {row.pro}
                       </td>
-                      <td className="p-4 text-center text-[var(--muted-strong)]">{row.studio}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -236,7 +226,9 @@ export default function PricingPage() {
           <div className="mx-auto max-w-3xl px-6">
             <div className="text-center">
               <p className="hero-eyebrow">FAQ</p>
-              <h2 className="section-title mt-3">Questions <em>fréquentes.</em></h2>
+              <h2 className="section-title mt-3">
+                Questions <em>fréquentes.</em>
+              </h2>
             </div>
 
             <div className="mt-12 space-y-3">
@@ -249,7 +241,7 @@ export default function PricingPage() {
                     {faq.q}
                     <ArrowRight className="h-4 w-4 shrink-0 text-[var(--muted)] transition group-open:rotate-90 group-open:text-[var(--accent)]" />
                   </summary>
-                  <p className="mt-3 text-[var(--muted-strong)] leading-relaxed">{faq.a}</p>
+                  <p className="mt-3 leading-relaxed text-[var(--muted-strong)]">{faq.a}</p>
                 </details>
               ))}
             </div>
@@ -267,7 +259,7 @@ export default function PricingPage() {
             </h2>
             <p className="mx-auto mt-5 max-w-md text-lg text-white/70">
               Commence en Free. Tu passes en Pro le jour où le domaine
-              custom devient une évidence.
+              perso devient une évidence.
             </p>
             <Link href="/dashboard" className="mt-10 inline-block">
               <Button variant="accent" size="lg" className="animate-pulse-coral">
@@ -293,22 +285,27 @@ function PlanCard({ plan }: { plan: Plan }) {
   const Icon = plan.icon;
   return (
     <div
-      className={`relative flex flex-col rounded-3xl border bg-white p-7 shadow-[var(--shadow-md)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-xl)] ${
+      className={`relative flex flex-col rounded-3xl border bg-white p-8 shadow-[var(--shadow-md)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-xl)] ${
         plan.highlight
           ? "border-[var(--accent)] ring-4 ring-[var(--accent-soft)]"
           : "border-[var(--border)]"
       }`}
     >
       {plan.highlight ? (
-        <span className="sticker sticker--accent absolute -top-4 left-1/2 -translate-x-1/2" style={{ ["--rot" as never]: "-3deg" }}>
-          <Sparkles className="h-3.5 w-3.5" /> Le plus choisi
+        <span
+          className="sticker sticker--accent absolute -top-4 left-1/2 -translate-x-1/2"
+          style={{ ["--rot" as never]: "-3deg" }}
+        >
+          <Sparkles className="h-3.5 w-3.5" /> Recommandé
         </span>
       ) : null}
 
       <div className="mb-4 flex items-center gap-2.5">
         <span
           className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-            plan.highlight ? "bg-[var(--accent)] text-white" : "bg-[var(--surface-hover)] text-[var(--foreground)]"
+            plan.highlight
+              ? "bg-[var(--accent)] text-white"
+              : "bg-[var(--surface-hover)] text-[var(--foreground)]"
           }`}
         >
           <Icon className="h-4 w-4" />
@@ -333,11 +330,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       ) : null}
 
       <Link href={plan.cta.href} className="mb-6 block">
-        <Button
-          variant={plan.highlight ? "accent" : "primary"}
-          size="md"
-          className="w-full"
-        >
+        <Button variant={plan.highlight ? "accent" : "primary"} size="md" className="w-full">
           {plan.cta.label}
           <ArrowRight className="ml-2 h-3.5 w-3.5" />
         </Button>
