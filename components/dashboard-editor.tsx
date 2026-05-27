@@ -1,6 +1,7 @@
 "use client";
 
 import { AmbientBackground } from "@/components/ambient-background";
+import { AvatarUploader } from "@/components/avatar-uploader";
 import { Logo } from "@/components/logo";
 import { PhoneFrame } from "@/components/phone-frame";
 import { ProfileView } from "@/components/profile-view";
@@ -121,7 +122,8 @@ export function DashboardEditor({
   saved,
   error,
   plan = "free",
-  userEmail = ""
+  userEmail = "",
+  userId = ""
 }: {
   initialUsername?: string;
   initialContent?: ProfileContent;
@@ -129,6 +131,7 @@ export function DashboardEditor({
   error?: string;
   plan?: PlanTier;
   userEmail?: string;
+  userId?: string;
 }) {
   const [state, setState] = useState<FormState>(() =>
     contentToFormState(initialUsername, initialContent)
@@ -275,6 +278,22 @@ export function DashboardEditor({
               title="Identité"
               description="La photo est obligatoire sur un CV français."
             >
+              <Field label="Photo Hero" required>
+                {userId ? (
+                  <AvatarUploader
+                    value={state.heroPhotoUrl}
+                    onChange={(url) => update("heroPhotoUrl", url)}
+                    userId={userId}
+                  />
+                ) : (
+                  <Input
+                    required
+                    value={state.heroPhotoUrl}
+                    onChange={(e) => update("heroPhotoUrl", e.target.value)}
+                    placeholder="https://..."
+                  />
+                )}
+              </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Nom complet" required>
                   <Input
@@ -297,14 +316,6 @@ export function DashboardEditor({
                     value={state.heroLocation}
                     onChange={(e) => update("heroLocation", e.target.value)}
                     placeholder="Paris, France"
-                  />
-                </Field>
-                <Field label="URL de ta photo" required>
-                  <Input
-                    required
-                    value={state.heroPhotoUrl}
-                    onChange={(e) => update("heroPhotoUrl", e.target.value)}
-                    placeholder="https://..."
                   />
                 </Field>
               </div>

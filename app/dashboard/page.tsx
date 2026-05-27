@@ -29,6 +29,7 @@ export default async function DashboardPage({
       saved={Boolean(params.saved)}
       error={params.error}
       userEmail={user.email ?? ""}
+      userId={user.id}
     />
   );
 }
