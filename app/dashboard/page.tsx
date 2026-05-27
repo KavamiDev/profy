@@ -1,12 +1,6 @@
 import { DashboardEditor } from "@/components/dashboard-editor";
 import { getProfileByUsername } from "@/lib/server/profiles-store";
 
-const errorMessages: Record<string, string> = {
-  "username-reserve": "username-reserve",
-  "username-invalide": "username-invalide",
-  "contenu-invalide": "contenu-invalide"
-};
-
 export default async function DashboardPage({
   searchParams
 }: {
@@ -19,10 +13,10 @@ export default async function DashboardPage({
 
   return (
     <DashboardEditor
-      initialUsername={existingProfile?.username ?? ""}
+      initialUsername={existingProfile?.username ?? params.username ?? ""}
       initialContent={existingProfile?.content}
       saved={Boolean(params.saved)}
-      error={params.error && errorMessages[params.error] ? params.error : params.error}
+      error={params.error}
     />
   );
 }

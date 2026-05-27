@@ -10,19 +10,74 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SectionCard } from "@/components/ui/section-card";
 import { Textarea } from "@/components/ui/textarea";
-import type { ProfileContent } from "@/types/profile";
-import { defaultProfileContent } from "@/types/profile";
-import { ExternalLink, Save } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
 import { saveProfile } from "@/app/dashboard/actions";
 import { DEMO_USERNAME } from "@/lib/demo-persona";
+import { canAdd, getLimit, type PlanTier, type SectionKey } from "@/lib/plan-limits";
+import { defaultProfileContent } from "@/types/profile";
+import type { ProfileContent } from "@/types/profile";
+import { ChevronDown, ExternalLink, Lock, Plus, Save, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState, type ReactNode } from "react";
 
-function splitList(value: string) {
+function splitList(value: string): string[] {
   return value
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+type Experience = ProfileContent["experience"][number];
+type Education = ProfileContent["education"][number];
+type Project = ProfileContent["projects"][number];
+type Language = ProfileContent["languages"][number];
+
+const emptyExperience: Experience = { company: "", role: "", start: "", end: "", description: "" };
+const emptyEducation: Education = { school: "", degree: "", start: "", end: "" };
+const emptyProject: Project = { name: "", link: "", description: "" };
+const emptyLanguage: Language = { name: "", level: "" };
+
+type FormState = {
+  username: string;
+  heroFullName: string;
+  heroTitle: string;
+  heroLocation: string;
+  heroPhotoUrl: string;
+  heroSummary: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactWebsite: string;
+  contactLinkedin: string;
+  skillsCore: string;
+  skillsTools: string;
+  experiences: Experience[];
+  education: Education[];
+  projects: Project[];
+  languages: Language[];
+  certifications: string;
+  interests: string;
+};
+
+function contentToFormState(username: string, content: ProfileContent): FormState {
+  return {
+    username,
+    heroFullName: content.hero.fullName,
+    heroTitle: content.hero.title,
+    heroLocation: content.hero.location,
+    heroPhotoUrl: content.hero.photoUrl,
+    heroSummary: content.hero.summary,
+    contactEmail: content.contact.email,
+    contactPhone: content.contact.phone,
+    contactWebsite: content.contact.website,
+    contactLinkedin: content.contact.linkedin,
+    skillsCore: content.skills.core.join(", "),
+    skillsTools: content.skills.tools.join(", "),
+    experiences: content.experience.length > 0 ? content.experience : [],
+    education: content.education.length > 0 ? content.education : [],
+    projects: content.projects.length > 0 ? content.projects : [],
+    languages: content.languages.length > 0 ? content.languages : [],
+    certifications: content.certifications.join(", "),
+    interests: content.extras.interests.join(", ")
+  };
 }
 
 function buildContent(state: FormState): ProfileContent {
@@ -44,120 +99,34 @@ function buildContent(state: FormState): ProfileContent {
       core: splitList(state.skillsCore),
       tools: splitList(state.skillsTools)
     },
-    experience: state.expCompany
-      ? [
-          {
-            company: state.expCompany,
-            role: state.expRole,
-            start: state.expStart,
-            end: state.expEnd,
-            description: state.expDescription
-          }
-        ]
-      : [],
-    education: state.eduSchool
-      ? [
-          {
-            school: state.eduSchool,
-            degree: state.eduDegree,
-            start: state.eduStart,
-            end: state.eduEnd
-          }
-        ]
-      : [],
-    projects: state.projectName
-      ? [
-          {
-            name: state.projectName,
-            link: state.projectLink,
-            description: state.projectDescription
-          }
-        ]
-      : [],
+    experience: state.experiences.filter((e) => e.company || e.role),
+    education: state.education.filter((e) => e.school || e.degree),
+    projects: state.projects.filter((p) => p.name),
+    languages: state.languages.filter((l) => l.name),
     certifications: splitList(state.certifications),
-    languages: state.languageName
-      ? [{ name: state.languageName, level: state.languageLevel }]
-      : [],
-    extras: {
-      interests: splitList(state.interests)
-    }
+    extras: { interests: splitList(state.interests) }
   };
 }
 
-type FormState = {
-  username: string;
-  heroFullName: string;
-  heroTitle: string;
-  heroLocation: string;
-  heroPhotoUrl: string;
-  heroSummary: string;
-  contactEmail: string;
-  contactPhone: string;
-  contactWebsite: string;
-  contactLinkedin: string;
-  skillsCore: string;
-  skillsTools: string;
-  expCompany: string;
-  expRole: string;
-  expStart: string;
-  expEnd: string;
-  expDescription: string;
-  eduSchool: string;
-  eduDegree: string;
-  eduStart: string;
-  eduEnd: string;
-  projectName: string;
-  projectLink: string;
-  projectDescription: string;
-  certifications: string;
-  languageName: string;
-  languageLevel: string;
-  interests: string;
+const errorMessages: Record<string, string> = {
+  "username-reserve": "Ce username est réservé.",
+  "username-invalide": "Username invalide (3–30 caractères, minuscules, chiffres, tirets).",
+  "username-pris": "Ce username est déjà pris. Choisis-en un autre.",
+  "contenu-invalide": "Vérifie le nom, le titre, la photo et les liens URL."
 };
-
-function contentToFormState(username: string, content: ProfileContent): FormState {
-  return {
-    username,
-    heroFullName: content.hero.fullName,
-    heroTitle: content.hero.title,
-    heroLocation: content.hero.location,
-    heroPhotoUrl: content.hero.photoUrl,
-    heroSummary: content.hero.summary,
-    contactEmail: content.contact.email,
-    contactPhone: content.contact.phone,
-    contactWebsite: content.contact.website,
-    contactLinkedin: content.contact.linkedin,
-    skillsCore: content.skills.core.join(", "),
-    skillsTools: content.skills.tools.join(", "),
-    expCompany: content.experience[0]?.company ?? "",
-    expRole: content.experience[0]?.role ?? "",
-    expStart: content.experience[0]?.start ?? "",
-    expEnd: content.experience[0]?.end ?? "",
-    expDescription: content.experience[0]?.description ?? "",
-    eduSchool: content.education[0]?.school ?? "",
-    eduDegree: content.education[0]?.degree ?? "",
-    eduStart: content.education[0]?.start ?? "",
-    eduEnd: content.education[0]?.end ?? "",
-    projectName: content.projects[0]?.name ?? "",
-    projectLink: content.projects[0]?.link ?? "",
-    projectDescription: content.projects[0]?.description ?? "",
-    certifications: content.certifications.join(", "),
-    languageName: content.languages[0]?.name ?? "",
-    languageLevel: content.languages[0]?.level ?? "",
-    interests: content.extras.interests.join(", ")
-  };
-}
 
 export function DashboardEditor({
   initialUsername = "",
   initialContent = defaultProfileContent,
   saved,
-  error
+  error,
+  plan = "free"
 }: {
   initialUsername?: string;
   initialContent?: ProfileContent;
   saved?: boolean;
   error?: string;
+  plan?: PlanTier;
 }) {
   const [state, setState] = useState<FormState>(() =>
     contentToFormState(initialUsername, initialContent)
@@ -165,9 +134,42 @@ export function DashboardEditor({
 
   const previewContent = useMemo(() => buildContent(state), [state]);
   const previewUsername = state.username || "ton-username";
+  const contentJson = useMemo(() => JSON.stringify(previewContent), [previewContent]);
+  const isEditMode = Boolean(initialUsername);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updateArrayItem<T>(key: "experiences" | "education" | "projects" | "languages", idx: number, patch: Partial<T>) {
+    setState((prev) => ({
+      ...prev,
+      [key]: (prev[key] as T[]).map((item, i) => (i === idx ? { ...item, ...patch } : item))
+    }));
+  }
+
+  function removeArrayItem(key: "experiences" | "education" | "projects" | "languages", idx: number) {
+    setState((prev) => {
+      const arr = prev[key] as unknown[];
+      return { ...prev, [key]: arr.filter((_, i) => i !== idx) } as FormState;
+    });
+  }
+
+  function addExperience() {
+    if (!canAdd(plan, "experiences", state.experiences.length)) return;
+    setState((prev) => ({ ...prev, experiences: [...prev.experiences, { ...emptyExperience }] }));
+  }
+  function addEducation() {
+    if (!canAdd(plan, "education", state.education.length)) return;
+    setState((prev) => ({ ...prev, education: [...prev.education, { ...emptyEducation }] }));
+  }
+  function addProject() {
+    if (!canAdd(plan, "projects", state.projects.length)) return;
+    setState((prev) => ({ ...prev, projects: [...prev.projects, { ...emptyProject }] }));
+  }
+  function addLanguage() {
+    if (!canAdd(plan, "languages", state.languages.length)) return;
+    setState((prev) => ({ ...prev, languages: [...prev.languages, { ...emptyLanguage }] }));
   }
 
   return (
@@ -213,22 +215,27 @@ export function DashboardEditor({
         <div className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-4 py-8 lg:px-6">
           {saved ? (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-              Profil publié avec succès.
+              ✓ Profil publié avec succès — visite{" "}
+              <Link
+                href={`/${state.username}`}
+                target="_blank"
+                className="font-medium underline underline-offset-2"
+              >
+                profyl.io/{state.username}
+              </Link>
             </div>
           ) : null}
           {error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-              {error === "username-reserve" && "Ce username est réservé."}
-              {error === "username-invalide" &&
-                "Username invalide (3–30 caractères, minuscules, chiffres, tirets)."}
-              {error === "contenu-invalide" &&
-                "Vérifie le nom, le titre, la photo et les liens URL."}
-              {!["username-reserve", "username-invalide", "contenu-invalide"].includes(error) &&
-                "Erreur lors de la sauvegarde."}
+              {errorMessages[error] ?? "Erreur lors de la sauvegarde."}
             </div>
           ) : null}
 
           <form id="profile-form" action={saveProfile} className="space-y-5">
+            {/* hidden inputs portant tout le content sérialisé + flags */}
+            <input type="hidden" name="content" value={contentJson} />
+            <input type="hidden" name="editMode" value={isEditMode ? "1" : "0"} />
+
             <SectionCard
               title="Ton adresse Profyl"
               description="Choisis l'URL que tu partageras aux recruteurs."
@@ -239,18 +246,25 @@ export function DashboardEditor({
                   name="username"
                   required
                   value={state.username}
-                  onChange={(e) => update("username", e.target.value.toLowerCase())}
+                  onChange={(e) =>
+                    update(
+                      "username",
+                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
+                    )
+                  }
                   placeholder="jean-dupont"
                   className="h-11 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
                 />
               </div>
             </SectionCard>
 
-            <SectionCard title="Identité" description="La photo est obligatoire sur un CV français.">
+            <SectionCard
+              title="Identité"
+              description="La photo est obligatoire sur un CV français."
+            >
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Nom complet" required>
                   <Input
-                    name="heroFullName"
                     required
                     value={state.heroFullName}
                     onChange={(e) => update("heroFullName", e.target.value)}
@@ -259,7 +273,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="Titre professionnel" required>
                   <Input
-                    name="heroTitle"
                     required
                     value={state.heroTitle}
                     onChange={(e) => update("heroTitle", e.target.value)}
@@ -268,7 +281,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="Ville">
                   <Input
-                    name="heroLocation"
                     value={state.heroLocation}
                     onChange={(e) => update("heroLocation", e.target.value)}
                     placeholder="Paris, France"
@@ -276,7 +288,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="URL de ta photo" required>
                   <Input
-                    name="heroPhotoUrl"
                     required
                     value={state.heroPhotoUrl}
                     onChange={(e) => update("heroPhotoUrl", e.target.value)}
@@ -286,7 +297,6 @@ export function DashboardEditor({
               </div>
               <Field label="Résumé">
                 <Textarea
-                  name="heroSummary"
                   value={state.heroSummary}
                   onChange={(e) => update("heroSummary", e.target.value)}
                   placeholder="Quelques lignes sur ton parcours et ce que tu recherches..."
@@ -299,7 +309,6 @@ export function DashboardEditor({
                 <Field label="Email">
                   <Input
                     type="email"
-                    name="contactEmail"
                     value={state.contactEmail}
                     onChange={(e) => update("contactEmail", e.target.value)}
                     placeholder="jean@email.com"
@@ -307,7 +316,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="Téléphone">
                   <Input
-                    name="contactPhone"
                     value={state.contactPhone}
                     onChange={(e) => update("contactPhone", e.target.value)}
                     placeholder="+33 6 12 34 56 78"
@@ -315,7 +323,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="Site web">
                   <Input
-                    name="contactWebsite"
                     value={state.contactWebsite}
                     onChange={(e) => update("contactWebsite", e.target.value)}
                     placeholder="https://monsite.fr"
@@ -323,7 +330,6 @@ export function DashboardEditor({
                 </Field>
                 <Field label="LinkedIn">
                   <Input
-                    name="contactLinkedin"
                     value={state.contactLinkedin}
                     onChange={(e) => update("contactLinkedin", e.target.value)}
                     placeholder="https://linkedin.com/in/..."
@@ -335,7 +341,6 @@ export function DashboardEditor({
             <SectionCard title="Compétences" description="Sépare par des virgules.">
               <Field label="Compétences clés">
                 <Input
-                  name="skillsCore"
                   value={state.skillsCore}
                   onChange={(e) => update("skillsCore", e.target.value)}
                   placeholder="UX Research, Figma, Prototypage"
@@ -343,7 +348,6 @@ export function DashboardEditor({
               </Field>
               <Field label="Outils">
                 <Input
-                  name="skillsTools"
                   value={state.skillsTools}
                   onChange={(e) => update("skillsTools", e.target.value)}
                   placeholder="Notion, Jira, Webflow"
@@ -351,137 +355,238 @@ export function DashboardEditor({
               </Field>
             </SectionCard>
 
-            <SectionCard title="Expérience">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Entreprise">
-                  <Input
-                    name="expCompany"
-                    value={state.expCompany}
-                    onChange={(e) => update("expCompany", e.target.value)}
-                  />
-                </Field>
-                <Field label="Poste">
-                  <Input
-                    name="expRole"
-                    value={state.expRole}
-                    onChange={(e) => update("expRole", e.target.value)}
-                  />
-                </Field>
-                <Field label="Début">
-                  <Input
-                    name="expStart"
-                    value={state.expStart}
-                    onChange={(e) => update("expStart", e.target.value)}
-                    placeholder="2022"
-                  />
-                </Field>
-                <Field label="Fin">
-                  <Input
-                    name="expEnd"
-                    value={state.expEnd}
-                    onChange={(e) => update("expEnd", e.target.value)}
-                    placeholder="2025"
-                  />
-                </Field>
-              </div>
-              <Field label="Description">
-                <Textarea
-                  name="expDescription"
-                  value={state.expDescription}
-                  onChange={(e) => update("expDescription", e.target.value)}
-                />
-              </Field>
-            </SectionCard>
+            {/* ---------- EXPÉRIENCES (array dynamique) ---------- */}
+            <RepeatableSection
+              title="Expériences"
+              description="Du plus récent au plus ancien."
+              count={state.experiences.length}
+              plan={plan}
+              sectionKey="experiences"
+              onAdd={addExperience}
+              addLabel="Ajouter une expérience"
+              emptyLabel="Aucune expérience pour l'instant"
+            >
+              {state.experiences.map((exp, idx) => (
+                <RepeatItem
+                  key={idx}
+                  index={idx}
+                  title={exp.role || exp.company || "Nouvelle expérience"}
+                  subtitle={exp.company}
+                  onRemove={() => removeArrayItem("experiences", idx)}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Entreprise">
+                      <Input
+                        value={exp.company}
+                        onChange={(e) =>
+                          updateArrayItem<Experience>("experiences", idx, {
+                            company: e.target.value
+                          })
+                        }
+                      />
+                    </Field>
+                    <Field label="Poste">
+                      <Input
+                        value={exp.role}
+                        onChange={(e) =>
+                          updateArrayItem<Experience>("experiences", idx, { role: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <Field label="Début">
+                      <Input
+                        value={exp.start}
+                        onChange={(e) =>
+                          updateArrayItem<Experience>("experiences", idx, { start: e.target.value })
+                        }
+                        placeholder="2022"
+                      />
+                    </Field>
+                    <Field label="Fin">
+                      <Input
+                        value={exp.end}
+                        onChange={(e) =>
+                          updateArrayItem<Experience>("experiences", idx, { end: e.target.value })
+                        }
+                        placeholder="2025 ou Aujourd'hui"
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Description">
+                    <Textarea
+                      value={exp.description}
+                      onChange={(e) =>
+                        updateArrayItem<Experience>("experiences", idx, {
+                          description: e.target.value
+                        })
+                      }
+                    />
+                  </Field>
+                </RepeatItem>
+              ))}
+            </RepeatableSection>
 
-            <SectionCard title="Formation">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="École">
-                  <Input
-                    name="eduSchool"
-                    value={state.eduSchool}
-                    onChange={(e) => update("eduSchool", e.target.value)}
-                  />
-                </Field>
-                <Field label="Diplôme">
-                  <Input
-                    name="eduDegree"
-                    value={state.eduDegree}
-                    onChange={(e) => update("eduDegree", e.target.value)}
-                  />
-                </Field>
-                <Field label="Début">
-                  <Input
-                    name="eduStart"
-                    value={state.eduStart}
-                    onChange={(e) => update("eduStart", e.target.value)}
-                  />
-                </Field>
-                <Field label="Fin">
-                  <Input
-                    name="eduEnd"
-                    value={state.eduEnd}
-                    onChange={(e) => update("eduEnd", e.target.value)}
-                  />
-                </Field>
-              </div>
-            </SectionCard>
+            {/* ---------- FORMATIONS ---------- */}
+            <RepeatableSection
+              title="Formations"
+              count={state.education.length}
+              plan={plan}
+              sectionKey="education"
+              onAdd={addEducation}
+              addLabel="Ajouter une formation"
+              emptyLabel="Aucune formation pour l'instant"
+            >
+              {state.education.map((edu, idx) => (
+                <RepeatItem
+                  key={idx}
+                  index={idx}
+                  title={edu.degree || "Nouvelle formation"}
+                  subtitle={edu.school}
+                  onRemove={() => removeArrayItem("education", idx)}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="École">
+                      <Input
+                        value={edu.school}
+                        onChange={(e) =>
+                          updateArrayItem<Education>("education", idx, { school: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <Field label="Diplôme">
+                      <Input
+                        value={edu.degree}
+                        onChange={(e) =>
+                          updateArrayItem<Education>("education", idx, { degree: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <Field label="Début">
+                      <Input
+                        value={edu.start}
+                        onChange={(e) =>
+                          updateArrayItem<Education>("education", idx, { start: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <Field label="Fin">
+                      <Input
+                        value={edu.end}
+                        onChange={(e) =>
+                          updateArrayItem<Education>("education", idx, { end: e.target.value })
+                        }
+                      />
+                    </Field>
+                  </div>
+                </RepeatItem>
+              ))}
+            </RepeatableSection>
 
-            <SectionCard title="Projet">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Nom">
-                  <Input
-                    name="projectName"
-                    value={state.projectName}
-                    onChange={(e) => update("projectName", e.target.value)}
-                  />
-                </Field>
-                <Field label="Lien">
-                  <Input
-                    name="projectLink"
-                    value={state.projectLink}
-                    onChange={(e) => update("projectLink", e.target.value)}
-                  />
-                </Field>
-              </div>
-              <Field label="Description">
-                <Textarea
-                  name="projectDescription"
-                  value={state.projectDescription}
-                  onChange={(e) => update("projectDescription", e.target.value)}
-                />
-              </Field>
-            </SectionCard>
+            {/* ---------- PROJETS ---------- */}
+            <RepeatableSection
+              title="Projets"
+              count={state.projects.length}
+              plan={plan}
+              sectionKey="projects"
+              onAdd={addProject}
+              addLabel="Ajouter un projet"
+              emptyLabel="Aucun projet pour l'instant"
+            >
+              {state.projects.map((project, idx) => (
+                <RepeatItem
+                  key={idx}
+                  index={idx}
+                  title={project.name || "Nouveau projet"}
+                  onRemove={() => removeArrayItem("projects", idx)}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Nom">
+                      <Input
+                        value={project.name}
+                        onChange={(e) =>
+                          updateArrayItem<Project>("projects", idx, { name: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <Field label="Lien">
+                      <Input
+                        value={project.link}
+                        onChange={(e) =>
+                          updateArrayItem<Project>("projects", idx, { link: e.target.value })
+                        }
+                        placeholder="https://..."
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Description">
+                    <Textarea
+                      value={project.description}
+                      onChange={(e) =>
+                        updateArrayItem<Project>("projects", idx, {
+                          description: e.target.value
+                        })
+                      }
+                    />
+                  </Field>
+                </RepeatItem>
+              ))}
+            </RepeatableSection>
+
+            {/* ---------- LANGUES ---------- */}
+            <RepeatableSection
+              title="Langues"
+              count={state.languages.length}
+              plan={plan}
+              sectionKey="languages"
+              onAdd={addLanguage}
+              addLabel="Ajouter une langue"
+              emptyLabel="Aucune langue pour l'instant"
+            >
+              {state.languages.map((lang, idx) => (
+                <RepeatItem
+                  key={idx}
+                  index={idx}
+                  title={lang.name || "Nouvelle langue"}
+                  subtitle={lang.level}
+                  onRemove={() => removeArrayItem("languages", idx)}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Langue">
+                      <Input
+                        value={lang.name}
+                        onChange={(e) =>
+                          updateArrayItem<Language>("languages", idx, { name: e.target.value })
+                        }
+                        placeholder="Anglais"
+                      />
+                    </Field>
+                    <Field label="Niveau">
+                      <Input
+                        value={lang.level}
+                        onChange={(e) =>
+                          updateArrayItem<Language>("languages", idx, { level: e.target.value })
+                        }
+                        placeholder="C1 / Courant"
+                      />
+                    </Field>
+                  </div>
+                </RepeatItem>
+              ))}
+            </RepeatableSection>
 
             <SectionCard title="En plus">
               <Field label="Certifications">
                 <Input
-                  name="certifications"
                   value={state.certifications}
                   onChange={(e) => update("certifications", e.target.value)}
-                  placeholder="AWS, Google UX"
+                  placeholder="AWS, Google UX, PSPO"
                 />
               </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Langue">
-                  <Input
-                    name="languageName"
-                    value={state.languageName}
-                    onChange={(e) => update("languageName", e.target.value)}
-                  />
-                </Field>
-                <Field label="Niveau">
-                  <Input
-                    name="languageLevel"
-                    value={state.languageLevel}
-                    onChange={(e) => update("languageLevel", e.target.value)}
-                  />
-                </Field>
-              </div>
               <Field label="Centres d'intérêt">
                 <Input
-                  name="interests"
                   value={state.interests}
                   onChange={(e) => update("interests", e.target.value)}
+                  placeholder="Randonnée, Photographie"
                 />
               </Field>
             </SectionCard>
@@ -512,6 +617,8 @@ export function DashboardEditor({
   );
 }
 
+/* ---------- Sub-components ---------- */
+
 function Field({
   label,
   required,
@@ -528,6 +635,135 @@ function Field({
         {required ? <span className="text-red-500"> *</span> : null}
       </Label>
       {children}
+    </div>
+  );
+}
+
+function RepeatableSection({
+  title,
+  description,
+  count,
+  plan,
+  sectionKey,
+  onAdd,
+  addLabel,
+  emptyLabel,
+  children
+}: {
+  title: string;
+  description?: string;
+  count: number;
+  plan: PlanTier;
+  sectionKey: SectionKey;
+  onAdd: () => void;
+  addLabel: string;
+  emptyLabel: string;
+  children: ReactNode;
+}) {
+  const limit = getLimit(plan, sectionKey);
+  const limitReached = !canAdd(plan, sectionKey, count);
+  const limitText = limit === Infinity ? null : `${count}/${limit}`;
+
+  return (
+    <SectionCard
+      title={
+        <span className="flex items-center gap-2">
+          {title}
+          {limitText ? (
+            <span className="rounded-full bg-[var(--surface-hover)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted)]">
+              {limitText}
+            </span>
+          ) : null}
+        </span>
+      }
+      description={description}
+    >
+      <div className="space-y-3">
+        {count === 0 ? (
+          <p className="rounded-xl border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--muted)]">
+            {emptyLabel}
+          </p>
+        ) : (
+          children
+        )}
+
+        {limitReached ? (
+          <div className="flex items-center gap-3 rounded-xl border border-[var(--accent-soft-3)] bg-[var(--accent-soft-3)]/40 px-4 py-3 text-sm">
+            <Lock className="h-4 w-4 shrink-0 text-[var(--accent-3)]" />
+            <p className="flex-1 text-[var(--muted-strong)]">
+              Limite Free atteinte ({limit}).{" "}
+              <Link
+                href="/pricing"
+                className="font-medium text-[var(--foreground)] underline decoration-[var(--accent)] decoration-2 underline-offset-4"
+              >
+                Passe en Pro
+              </Link>{" "}
+              pour ajouter plus.
+            </p>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border-strong)] bg-white/50 px-4 py-3 text-sm font-medium text-[var(--muted-strong)] transition hover:border-[var(--accent)] hover:bg-white hover:text-[var(--accent)]"
+          >
+            <Plus className="h-4 w-4" />
+            {addLabel}
+          </button>
+        )}
+      </div>
+    </SectionCard>
+  );
+}
+
+function RepeatItem({
+  index,
+  title,
+  subtitle,
+  onRemove,
+  children
+}: {
+  index: number;
+  title: string;
+  subtitle?: string;
+  onRemove: () => void;
+  children: ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white shadow-[var(--shadow-sm)]">
+      <header className="flex items-center gap-3 px-4 py-3">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex flex-1 items-center gap-2 text-left"
+        >
+          <ChevronDown
+            className={`h-4 w-4 text-[var(--muted)] transition-transform ${expanded ? "" : "-rotate-90"}`}
+          />
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+            #{index + 1}
+          </span>
+          <span className="truncate font-medium text-[var(--foreground)]">{title}</span>
+          {subtitle ? (
+            <span className="truncate text-sm text-[var(--muted)]">· {subtitle}</span>
+          ) : null}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm("Supprimer cet élément ?")) onRemove();
+          }}
+          className="rounded-lg p-1.5 text-[var(--muted)] transition hover:bg-red-50 hover:text-red-600"
+          aria-label="Supprimer"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </header>
+      {expanded ? (
+        <div className="space-y-4 border-t border-[var(--border)] p-4">{children}</div>
+      ) : null}
     </div>
   );
 }

@@ -7,8 +7,8 @@ export function SectionCard({
   children,
   className
 }: {
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
