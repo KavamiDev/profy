@@ -1,1 +1,7 @@
 .planning/
+node_modules/
+.next/
+out/
+.env.local
+tsconfig.tsbuildinfo
+npm-debug.log*
