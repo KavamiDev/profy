@@ -94,39 +94,49 @@ export default function HomePage() {
           </div>
 
           {/* ---------- Phone + stickers ---------- */}
-          <div className="animate-rise-in-delay-2 relative mt-20 flex justify-center">
-            {/* Sticker top-left — "Made in France" */}
-            <span
-              className="sticker sticker--cream animate-wobble left-4 top-0 sm:left-12 md:-left-4 md:top-8 lg:left-12"
-              style={{ ["--rot" as never]: "-6deg" }}
-            >
-              <span aria-hidden>🇫🇷</span> Pensé pour la France
-            </span>
+          <div className="animate-rise-in-delay-2 mt-16 flex flex-col items-center md:mt-24">
+            {/* Wrapper local : stickers positionnés relativement au phone, pas à la section. */}
+            <div className="relative w-full max-w-[360px]">
+              {/* Halo doux derrière le phone */}
+              <div
+                aria-hidden
+                className="absolute -inset-10 -z-10 rounded-[60px] bg-gradient-to-br from-[var(--accent)]/10 via-[var(--accent-2)]/10 to-transparent blur-3xl"
+              />
 
-            {/* Sticker right — "100% gratuit" */}
-            <span
-              className="sticker sticker--accent animate-wobble right-2 top-10 sm:right-8 md:right-0 md:top-16 lg:right-16"
-              style={{ ["--rot" as never]: "7deg" }}
-            >
-              <span aria-hidden>✨</span> 100% gratuit
-            </span>
+              {/* Sticker — top-left, "Made in France" */}
+              <span
+                className="sticker sticker--cream animate-wobble -left-6 top-6 sm:-left-16 sm:top-10"
+                style={{ ["--rot" as never]: "-6deg" }}
+              >
+                <span aria-hidden>🇫🇷</span> Pensé pour la France
+              </span>
 
-            {/* Sticker bottom-left — "Prêt en 10 min" */}
-            <span
-              className="sticker sticker--mint animate-wobble bottom-12 left-2 sm:left-8 md:bottom-20 md:left-0"
-              style={{ ["--rot" as never]: "-4deg" }}
-            >
-              <span aria-hidden>⏱</span> 10 min top chrono
-            </span>
+              {/* Sticker — right, "100% gratuit" */}
+              <span
+                className="sticker sticker--accent animate-wobble -right-4 top-32 sm:-right-14 sm:top-36"
+                style={{ ["--rot" as never]: "7deg" }}
+              >
+                <span aria-hidden>✨</span> 100% gratuit
+              </span>
 
-            <Link href={`/${DEMO_USERNAME}`} className="group relative block">
-              <div className="absolute -inset-10 rounded-[60px] bg-gradient-to-br from-[var(--accent)]/8 via-[var(--accent-2)]/8 to-transparent blur-3xl" />
-              <PhoneFrame floating className="relative z-10 transition group-hover:scale-[1.015]">
+              {/* Sticker — bottom, "10 min top chrono" */}
+              <span
+                className="sticker sticker--mint animate-wobble -left-2 bottom-20 sm:-left-10 sm:bottom-24"
+                style={{ ["--rot" as never]: "-4deg" }}
+              >
+                <span aria-hidden>⏱</span> 10 min top chrono
+              </span>
+
+              <PhoneFrame floating className="relative z-10">
                 <ProfileView username={DEMO_USERNAME} content={demoPersonaContent} compact />
               </PhoneFrame>
-              <p className="mt-5 text-center text-sm text-[var(--muted)] transition group-hover:text-[var(--foreground)]">
-                profyl.io/{DEMO_USERNAME} <span aria-hidden>↗</span>
-              </p>
+            </div>
+
+            <Link
+              href={`/${DEMO_USERNAME}`}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm text-[var(--muted)] underline decoration-[var(--border-strong)] decoration-2 underline-offset-4 transition hover:text-[var(--foreground)] hover:decoration-[var(--accent)]"
+            >
+              Voir la page complète : profyl.io/{DEMO_USERNAME} <span aria-hidden>↗</span>
             </Link>
           </div>
         </section>
