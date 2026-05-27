@@ -77,3 +77,77 @@ export const demoPersonaContent: ProfileContent = {
     interests: ["Randonnée", "Photographie", "Bénévolat associatif"]
   }
 };
+
+// Mini personae pour le "wall of profiles" sur la landing — illustration uniquement.
+export type WallPersona = {
+  username: string;
+  fullName: string;
+  title: string;
+  location: string;
+  photoUrl: string;
+  accent: "coral" | "lavender" | "honey" | "mint" | "ink";
+  rotate: number;
+};
+
+export const wallPersonas: WallPersona[] = [
+  {
+    username: "marie-laurent",
+    fullName: "Marie Laurent",
+    title: "Product Owner",
+    location: "Lyon",
+    photoUrl:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face",
+    accent: "coral",
+    rotate: -2
+  },
+  {
+    username: "thomas-rossi",
+    fullName: "Thomas Rossi",
+    title: "Designer produit",
+    location: "Paris",
+    photoUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+    accent: "lavender",
+    rotate: 1.5
+  },
+  {
+    username: "lea-benhamou",
+    fullName: "Léa Benhamou",
+    title: "Ingénieure logicielle",
+    location: "Toulouse",
+    photoUrl:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+    accent: "honey",
+    rotate: -1
+  },
+  {
+    username: "karim-diallo",
+    fullName: "Karim Diallo",
+    title: "Marketing growth",
+    location: "Marseille",
+    photoUrl:
+      "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=400&fit=crop&crop=face",
+    accent: "mint",
+    rotate: 2.5
+  },
+  {
+    username: "chloe-martin",
+    fullName: "Chloé Martin",
+    title: "Architecte d'intérieur",
+    location: "Bordeaux",
+    photoUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+    accent: "coral",
+    rotate: -2.5
+  },
+  {
+    username: "antoine-petit",
+    fullName: "Antoine Petit",
+    title: "Data analyst",
+    location: "Nantes",
+    photoUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    accent: "ink",
+    rotate: 1
+  }
+];
