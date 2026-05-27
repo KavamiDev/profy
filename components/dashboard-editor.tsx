@@ -18,13 +18,26 @@ import { defaultProfileContent } from "@/types/profile";
 import type { ProfileContent } from "@/types/profile";
 import { ChevronDown, ExternalLink, LogOut, Lock, Plus, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 function splitList(value: string): string[] {
   return value
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+/** Auto-préfixe https:// si l'user a tapé un domaine sans protocole. */
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+/** Clé localStorage par user. Évite le mix entre 2 comptes différents. */
+function draftStorageKey(userId: string): string {
+  return userId ? `profyl:draft:${userId}` : "profyl:draft:anon";
 }
 
 type Experience = ProfileContent["experience"][number];
@@ -136,11 +149,87 @@ export function DashboardEditor({
   const [state, setState] = useState<FormState>(() =>
     contentToFormState(initialUsername, initialContent)
   );
+  const [restoredFromDraft, setRestoredFromDraft] = useState(false);
 
-  const previewContent = useMemo(() => buildContent(state), [state]);
+  // ----- Restore draft depuis localStorage au mount -----
+  // Si l'user a une session interrompue (erreur de validation, fermeture
+  // d'onglet, crash...), on récupère ce qu'il avait tapé.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = draftStorageKey(userId);
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { state: FormState; savedAt: number };
+      // On ne restaure que si le draft est plus récent qu'1h sans publish réussi.
+      // (sinon données stale qui écrasent un profil tout juste sauvegardé)
+      const isFresh = Date.now() - parsed.savedAt < 60 * 60 * 1000;
+      if (!isFresh) return;
+      // On ne restaure que si le draft a du contenu sur les champs critiques.
+      if (parsed.state.heroFullName || parsed.state.username) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setState(parsed.state);
+        setRestoredFromDraft(true);
+      }
+    } catch {
+      // ignore parse errors
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ----- Autosave dans localStorage à chaque changement (debounced 400ms) -----
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = draftStorageKey(userId);
+    const timer = setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          key,
+          JSON.stringify({ state, savedAt: Date.now() })
+        );
+      } catch {
+        // localStorage plein ou désactivé → ignore
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [state, userId]);
+
+  // ----- Nettoyer le draft après publish réussi -----
+  useEffect(() => {
+    if (saved && typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(draftStorageKey(userId));
+      } catch {
+        /* ignore */
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRestoredFromDraft(false);
+    }
+  }, [saved, userId]);
+
+  // ----- Normaliser les URLs avant submit (pour éviter les Zod URL errors) -----
+  const normalizedContent = useMemo(() => {
+    const base = buildContent(state);
+    return {
+      ...base,
+      contact: {
+        ...base.contact,
+        website: normalizeUrl(base.contact.website),
+        linkedin: normalizeUrl(base.contact.linkedin)
+      },
+      projects: base.projects.map((p) => ({
+        ...p,
+        link: p.link ? normalizeUrl(p.link) : ""
+      }))
+    };
+  }, [state]);
+
+  const previewContent = normalizedContent;
   const previewUsername = state.username || "ton-username";
-  const contentJson = useMemo(() => JSON.stringify(previewContent), [previewContent]);
+  const contentJson = useMemo(() => JSON.stringify(normalizedContent), [normalizedContent]);
+  // initialUsername === non vide = profil déjà publié, on est en édition
   const isEditMode = Boolean(initialUsername);
+  void isEditMode; // réservé pour usage futur (refactor multi-profils)
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -241,16 +330,31 @@ export function DashboardEditor({
               </Link>
             </div>
           ) : null}
+          {restoredFromDraft && !saved ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              📝 Brouillon récupéré automatiquement — on a restauré ce que
+              tu avais commencé à remplir.
+            </div>
+          ) : null}
           {error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-              {errorMessages[error] ?? "Erreur lors de la sauvegarde."}
+              <p className="font-medium">⚠ {errorMessages[error] ?? "Erreur lors de la sauvegarde."}</p>
+              {error === "contenu-invalide" ? (
+                <p className="mt-1 text-xs text-red-700">
+                  Vérifie surtout : <strong>nom complet</strong>,{" "}
+                  <strong>titre professionnel</strong> et <strong>photo Hero</strong> qui sont
+                  obligatoires.
+                </p>
+              ) : null}
+              <p className="mt-1 text-xs text-red-700">
+                Tes données sont sauvegardées — tu n&apos;as rien perdu.
+              </p>
             </div>
           ) : null}
 
           <form id="profile-form" action={saveProfile} className="space-y-5">
-            {/* hidden inputs portant tout le content sérialisé + flags */}
+            {/* hidden input portant tout le content sérialisé */}
             <input type="hidden" name="content" value={contentJson} />
-            <input type="hidden" name="editMode" value={isEditMode ? "1" : "0"} />
 
             <SectionCard
               title="Ton adresse Profyl"
