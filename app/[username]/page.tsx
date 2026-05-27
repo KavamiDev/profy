@@ -9,19 +9,25 @@ import { notFound } from "next/navigation";
 export const revalidate = 300;
 
 export default async function PublicProfilePage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ embed?: string }>;
 }) {
-  const { username } = await params;
+  const [{ username }, { embed }] = await Promise.all([params, searchParams]);
   const profile = await getProfileByUsername(username);
 
   if (!profile) {
     notFound();
   }
 
+  const isEmbed = embed === "1";
+
   return (
-    <div className="grain relative min-h-screen bg-[var(--background)]">
+    <div
+      className={`grain relative min-h-screen bg-[var(--background)] ${isEmbed ? "embed-mode" : ""}`}
+    >
       {/* Halo doux derrière le hero, fixed pour ne pas bouger au scroll */}
       <div
         aria-hidden
@@ -31,7 +37,7 @@ export default async function PublicProfilePage({
           className="absolute left-1/2 top-[-200px] h-[700px] w-[1100px] -translate-x-1/2 rounded-full opacity-70"
           style={{
             background:
-              "radial-gradient(circle, rgba(232,93,76,0.10) 0%, rgba(139,127,212,0.06) 35%, transparent 70%)"
+              "radial-gradient(circle, rgba(255,90,60,0.10) 0%, rgba(122,108,224,0.06) 35%, transparent 70%)"
           }}
         />
       </div>
@@ -59,7 +65,6 @@ export default async function PublicProfilePage({
         <ProfileFullView username={profile.username} content={profile.content} />
       </div>
 
-      {/* Footer partage */}
       <footer className="relative z-10 border-t border-[var(--border)] bg-white/40 py-16">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 md:flex-row md:items-center md:justify-between">
           <div className="text-center md:text-left">
