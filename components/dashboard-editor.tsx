@@ -10,12 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SectionCard } from "@/components/ui/section-card";
 import { Textarea } from "@/components/ui/textarea";
-import { saveProfile } from "@/app/dashboard/actions";
+import { saveProfile, signOut } from "@/app/dashboard/actions";
 import { DEMO_USERNAME } from "@/lib/demo-persona";
 import { canAdd, getLimit, type PlanTier, type SectionKey } from "@/lib/plan-limits";
 import { defaultProfileContent } from "@/types/profile";
 import type { ProfileContent } from "@/types/profile";
-import { ChevronDown, ExternalLink, Lock, Plus, Save, Trash2 } from "lucide-react";
+import { ChevronDown, ExternalLink, LogOut, Lock, Plus, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 
@@ -120,13 +120,15 @@ export function DashboardEditor({
   initialContent = defaultProfileContent,
   saved,
   error,
-  plan = "free"
+  plan = "free",
+  userEmail = ""
 }: {
   initialUsername?: string;
   initialContent?: ProfileContent;
   saved?: boolean;
   error?: string;
   plan?: PlanTier;
+  userEmail?: string;
 }) {
   const [state, setState] = useState<FormState>(() =>
     contentToFormState(initialUsername, initialContent)
@@ -199,6 +201,17 @@ export function DashboardEditor({
                 <Save className="mr-2 h-4 w-4" />
                 Publier
               </Button>
+              {userEmail ? (
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="hidden items-center gap-1.5 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
+                    title={`Connecté en tant que ${userEmail}`}
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </form>
+              ) : null}
             </div>
           </div>
         </header>
