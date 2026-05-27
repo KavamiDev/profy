@@ -1,3 +1,5 @@
+import { LocaleProvider, localeHydrationScript } from "@/components/locale-provider";
+import { ThemeProvider, themeHydrationScript } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
@@ -23,8 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen antialiased">{children}</body>
+    <html lang="fr" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Anti-FOUC : applique data-theme + lang AVANT React. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: themeHydrationScript + localeHydrationScript
+          }}
+        />
+      </head>
+      <body className="min-h-screen antialiased">
+        <ThemeProvider>
+          <LocaleProvider>{children}</LocaleProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

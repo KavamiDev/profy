@@ -5,8 +5,11 @@
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 }
 
-/* Palette : crème calme + accent corail vif + lavande + ink + mint */
-:root {
+/* ============================
+   LIGHT THEME (par défaut)
+   ============================ */
+:root,
+:root[data-theme="light"] {
   --background: #faf7f2;
   --background-elevated: #ffffff;
   --foreground: #14130d;
@@ -18,13 +21,12 @@
   --border: #ebe6dd;
   --border-strong: #d8d1c2;
 
-  /* Couleurs riches inspirées own.page / Beacons / Linktree premium */
-  --accent: #ff5a3c;          /* corail vibrant */
-  --accent-deep: #c93820;     /* corail foncé pour hover */
-  --accent-2: #7a6ce0;        /* lavande */
-  --accent-3: #f4b860;        /* honey */
-  --accent-4: #2d7a52;        /* forêt */
-  --accent-5: #1a1a2e;        /* ink */
+  --accent: #ff5a3c;
+  --accent-deep: #c93820;
+  --accent-2: #7a6ce0;
+  --accent-3: #f4b860;
+  --accent-4: #2d7a52;
+  --accent-5: #1a1a2e;
   --accent-soft: #ffe9e3;
   --accent-soft-2: #ebe6fa;
   --accent-soft-3: #fdf0d9;
@@ -36,6 +38,53 @@
   --shadow-xl: 0 48px 96px -24px rgba(20, 19, 13, 0.22);
   --shadow-2xl: 0 80px 140px -40px rgba(20, 19, 13, 0.30);
   --shadow-coral: 0 30px 60px -20px rgba(255, 90, 60, 0.45);
+}
+
+/* ============================
+   DARK THEME
+   ============================ */
+:root[data-theme="dark"] {
+  --background: #14130d;
+  --background-elevated: #1c1a17;
+  --foreground: #f5f1e8;
+  --muted: #9a948a;
+  --muted-strong: #cec8be;
+  --surface: #1c1a17;
+  --surface-solid: #221f1b;
+  --surface-hover: #2a2622;
+  --border: #2e2a25;
+  --border-strong: #3d382f;
+
+  /* Accents légèrement adoucis pour dark */
+  --accent: #ff7a5c;
+  --accent-deep: #ff5a3c;
+  --accent-2: #9c91e8;
+  --accent-3: #f7c97a;
+  --accent-4: #4a9970;
+  --accent-5: #0a0a18; /* reste sombre — section-ink garde sa profondeur */
+
+  /* Soft variants → versions dark (teintes accent désaturées sur fond sombre) */
+  --accent-soft: #3a1f1a;
+  --accent-soft-2: #2a2540;
+  --accent-soft-3: #3a2d18;
+  --accent-soft-4: #1c3528;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 30px -8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 48px 96px -24px rgba(0, 0, 0, 0.65);
+  --shadow-2xl: 0 80px 140px -40px rgba(0, 0, 0, 0.75);
+  --shadow-coral: 0 30px 60px -20px rgba(255, 122, 92, 0.40);
+}
+
+/* Smooth transition entre les modes. */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+* {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
 }
 
 * {
@@ -280,7 +329,7 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  background: linear-gradient(to bottom, #f5f1ea 0%, #ece6db 100%);
+  background: linear-gradient(to bottom, var(--surface-hover) 0%, var(--border) 100%);
   border-bottom: 1px solid var(--border-strong);
 }
 .browser-url {
