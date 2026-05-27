@@ -1,7 +1,9 @@
+import { FloatingEditButton } from "@/components/floating-edit-button";
 import { Logo } from "@/components/logo";
 import { ProfileFullView } from "@/components/profile-full-view";
 import { ProfileQr } from "@/components/profile-qr";
 import { getProfileByUsername } from "@/lib/server/profiles-store";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,6 +25,17 @@ export default async function PublicProfilePage({
   }
 
   const isEmbed = embed === "1";
+
+  // Check ownership : si l'user connecté possède ce profil, on lui propose
+  // un bouton Modifier flottant. Pas affiché en mode embed (iframe landing).
+  let isOwner = false;
+  if (!isEmbed) {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+    isOwner = Boolean(user && profile.userId === user.id);
+  }
 
   return (
     <div
@@ -64,6 +77,8 @@ export default async function PublicProfilePage({
       <div className="relative z-10">
         <ProfileFullView username={profile.username} content={profile.content} />
       </div>
+
+      {isOwner ? <FloatingEditButton /> : null}
 
       <footer className="relative z-10 border-t border-[var(--border)] bg-white/40 py-16">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 md:flex-row md:items-center md:justify-between">

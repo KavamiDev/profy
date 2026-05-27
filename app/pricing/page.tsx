@@ -1,4 +1,5 @@
 import { Logo } from "@/components/logo";
+import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, Sparkles, Star, Zap } from "lucide-react";
 import Link from "next/link";
@@ -119,22 +120,7 @@ export default function PricingPage() {
         />
       </div>
 
-      <header className="relative z-20 mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        <Logo />
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="hidden text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-block"
-          >
-            Accueil
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="primary" size="sm">
-              Créer mon profil
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <SiteHeader showPricing={false} />
 
       <main className="relative z-10">
         {/* ---------- HERO ---------- */}

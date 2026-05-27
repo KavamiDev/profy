@@ -1,8 +1,9 @@
 import { BrowserFrame } from "@/components/browser-frame";
 import { Logo } from "@/components/logo";
+import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { DEMO_USERNAME, wallPersonas } from "@/lib/demo-persona";
-import { ArrowRight, ExternalLink, MapPin, Sparkles, Star } from "lucide-react";
+import { ArrowRight, MapPin, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -67,29 +68,7 @@ export default function HomePage() {
       </div>
 
       {/* ---------- Header ---------- */}
-      <header className="relative z-20 mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        <Logo />
-        <div className="flex items-center gap-3">
-          <Link
-            href="/pricing"
-            className="hidden text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-block"
-          >
-            Pricing
-          </Link>
-          <Link
-            href={`/${DEMO_USERNAME}`}
-            className="hidden items-center gap-1.5 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
-          >
-            Exemple
-            <ExternalLink className="h-3.5 w-3.5" />
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="primary" size="sm">
-              Créer mon profil
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <SiteHeader showPricing showExample demoUsername={DEMO_USERNAME} />
 
       <main className="relative z-10">
         {/* ---------- HERO ---------- */}
