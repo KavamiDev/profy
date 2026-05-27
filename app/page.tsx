@@ -71,10 +71,16 @@ export default function HomePage() {
         <Logo />
         <div className="flex items-center gap-3">
           <Link
+            href="/pricing"
+            className="hidden text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-block"
+          >
+            Pricing
+          </Link>
+          <Link
             href={`/${DEMO_USERNAME}`}
             className="hidden items-center gap-1.5 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
           >
-            Voir un exemple
+            Exemple
             <ExternalLink className="h-3.5 w-3.5" />
           </Link>
           <Link href="/dashboard">
