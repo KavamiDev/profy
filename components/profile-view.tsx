@@ -13,6 +13,22 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
+/**
+ * Dedup case-insensitive en conservant la première occurrence telle quelle.
+ * Ex: ["Notion", "notion", "Figma"] → ["Notion", "Figma"]
+ */
+function dedupCaseInsensitive(items: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of items) {
+    const key = item.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(item.trim());
+  }
+  return result;
+}
+
 export function ProfileView({
   username,
   content,
@@ -28,7 +44,9 @@ export function ProfileView({
     content;
 
   const hasContact = contact.email || contact.phone || contact.website || contact.linkedin;
-  const allSkills = [...skills.core, ...skills.tools];
+  // Dedup case-insensitive : si l'user a tapé "Notion" dans Compétences ET Outils,
+  // on ne l'affiche qu'une fois.
+  const allSkills = dedupCaseInsensitive([...skills.core, ...skills.tools]);
 
   return (
     <article className={cn("card-profile", compact ? "text-[13px]" : "", className)}>
@@ -107,9 +125,9 @@ export function ProfileView({
         {allSkills.length > 0 ? (
           <ProfileBlock title="Compétences" icon={Sparkles}>
             <div className="flex flex-wrap gap-2">
-              {allSkills.map((skill) => (
+              {allSkills.map((skill, idx) => (
                 <span
-                  key={skill}
+                  key={`${skill}-${idx}`}
                   className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[var(--foreground)]"
                 >
                   {skill}

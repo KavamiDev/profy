@@ -14,6 +14,21 @@ import Image from "next/image";
 import type { ComponentType, ReactNode } from "react";
 
 /**
+ * Dedup case-insensitive en conservant la première occurrence telle quelle.
+ */
+function dedupCaseInsensitive(items: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of items) {
+    const key = item.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(item.trim());
+  }
+  return result;
+}
+
+/**
  * Page profil publique format magazine.
  *
  * Layout :
@@ -36,7 +51,9 @@ export function ProfileFullView({
   const { hero, contact, skills, experience, education, projects, certifications, languages, extras } =
     content;
   const hasContact = contact.email || contact.phone || contact.website || contact.linkedin;
-  const allSkills = [...skills.core, ...skills.tools];
+  const allSkills = dedupCaseInsensitive([...skills.core, ...skills.tools]);
+  const cleanCertifications = dedupCaseInsensitive(certifications);
+  const cleanInterests = dedupCaseInsensitive(extras.interests);
 
   return (
     <article className={cn("relative w-full", className)}>
@@ -118,9 +135,9 @@ export function ProfileFullView({
           {allSkills.length > 0 ? (
             <Section eyebrow="Compétences" title="Ce que je sais faire" icon={Sparkles}>
               <div className="flex flex-wrap gap-2">
-                {allSkills.map((skill) => (
+                {allSkills.map((skill, idx) => (
                   <span
-                    key={skill}
+                    key={`${skill}-${idx}`}
                     className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:border-[var(--border-strong)]"
                   >
                     {skill}
@@ -133,8 +150,8 @@ export function ProfileFullView({
           {experience.length > 0 ? (
             <Section eyebrow="Parcours" title="Expériences" icon={Briefcase}>
               <ol className="relative space-y-8 border-l border-[var(--border)] pl-8">
-                {experience.map((exp) => (
-                  <li key={`${exp.company}-${exp.role}`} className="relative">
+                {experience.map((exp, idx) => (
+                  <li key={`${exp.company}-${exp.role}-${idx}`} className="relative">
                     <span className="absolute -left-[35px] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-[var(--accent)] shadow-[var(--shadow-sm)]" />
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--foreground)]">
@@ -160,9 +177,9 @@ export function ProfileFullView({
           {projects.length > 0 ? (
             <Section eyebrow="Réalisations" title="Projets" icon={Link2}>
               <div className="grid gap-5 sm:grid-cols-2">
-                {projects.map((project) => (
+                {projects.map((project, idx) => (
                   <div
-                    key={project.name}
+                    key={`${project.name}-${idx}`}
                     className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
                   >
                     {project.link ? (
@@ -191,8 +208,8 @@ export function ProfileFullView({
           {education.length > 0 ? (
             <Section eyebrow="Études" title="Formation" icon={GraduationCap}>
               <ul className="space-y-4">
-                {education.map((edu) => (
-                  <li key={`${edu.school}-${edu.degree}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                {education.map((edu, idx) => (
+                  <li key={`${edu.school}-${edu.degree}-${idx}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <p className="text-lg font-semibold text-[var(--foreground)]">{edu.degree}</p>
                     <p className="text-[var(--muted-strong)]">· {edu.school}</p>
                     {edu.start || edu.end ? (
@@ -207,14 +224,14 @@ export function ProfileFullView({
             </Section>
           ) : null}
 
-          {(certifications.length > 0 || languages.length > 0 || extras.interests.length > 0) && (
+          {(cleanCertifications.length > 0 || languages.length > 0 || cleanInterests.length > 0) && (
             <Section eyebrow="En plus" title="Le reste">
               <div className="grid gap-6 sm:grid-cols-3">
-                {certifications.length > 0 ? (
+                {cleanCertifications.length > 0 ? (
                   <FactBlock title="Certifications">
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
-                      {certifications.map((c) => (
-                        <li key={c}>{c}</li>
+                      {cleanCertifications.map((c, idx) => (
+                        <li key={`${c}-${idx}`}>{c}</li>
                       ))}
                     </ul>
                   </FactBlock>
@@ -222,8 +239,8 @@ export function ProfileFullView({
                 {languages.length > 0 ? (
                   <FactBlock title="Langues">
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
-                      {languages.map((l) => (
-                        <li key={l.name}>
+                      {languages.map((l, idx) => (
+                        <li key={`${l.name}-${idx}`}>
                           <span className="font-medium text-[var(--foreground)]">{l.name}</span>{" "}
                           <span className="text-sm text-[var(--muted)]">· {l.level}</span>
                         </li>
@@ -231,11 +248,11 @@ export function ProfileFullView({
                     </ul>
                   </FactBlock>
                 ) : null}
-                {extras.interests.length > 0 ? (
+                {cleanInterests.length > 0 ? (
                   <FactBlock title="Passions">
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
-                      {extras.interests.map((i) => (
-                        <li key={i}>{i}</li>
+                      {cleanInterests.map((i, idx) => (
+                        <li key={`${i}-${idx}`}>{i}</li>
                       ))}
                     </ul>
                   </FactBlock>
