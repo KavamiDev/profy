@@ -16,7 +16,12 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "Profyl — Ton CV en ligne, toujours à jour",
-  description: "Crée ton profil professionnel partageable en moins de 10 minutes."
+  description: "Crée ton profil professionnel partageable en moins de 10 minutes.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" }
+    ]
+  }
 };
 
 export default function RootLayout({
