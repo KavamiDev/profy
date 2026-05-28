@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 import type { ProfileContent } from "@/types/profile";
 import {
@@ -48,6 +51,7 @@ export function ProfileFullView({
   content: ProfileContent;
   className?: string;
 }) {
+  const t = useT();
   const { hero, contact, skills, experience, education, projects, certifications, languages, extras } =
     content;
   const hasContact = contact.email || contact.phone || contact.website || contact.linkedin;
@@ -91,7 +95,7 @@ export function ProfileFullView({
             </p>
 
             <h1 className="mt-5 font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.05] tracking-tight text-[var(--foreground)] md:text-5xl">
-              {hero.fullName || "Ton nom"}
+              {hero.fullName || t("profile.label.your_name")}
             </h1>
             {hero.title ? (
               <p className="mt-3 text-lg font-medium text-[var(--muted-strong)]">{hero.title}</p>
@@ -112,7 +116,7 @@ export function ProfileFullView({
                   <ContactLink icon={Phone} href={`tel:${contact.phone}`} label={contact.phone} />
                 ) : null}
                 {contact.website ? (
-                  <ContactLink icon={Globe} href={contact.website} label="Site web" external />
+                  <ContactLink icon={Globe} href={contact.website} label={t("profile.label.website")} external />
                 ) : null}
                 {contact.linkedin ? (
                   <ContactLink icon={Link2} href={contact.linkedin} label="LinkedIn" external />
@@ -125,7 +129,7 @@ export function ProfileFullView({
         {/* ---------- MAIN ---------- */}
         <main className="min-w-0 space-y-14 md:space-y-20">
           {hero.summary ? (
-            <Section eyebrow="À propos" title="En quelques mots">
+            <Section eyebrow={t("profile.section.summary.eyebrow")} title={t("profile.section.summary.title")}>
               <p className="text-lg leading-relaxed text-[var(--muted-strong)] md:text-xl md:leading-[1.65]">
                 {hero.summary}
               </p>
@@ -133,7 +137,7 @@ export function ProfileFullView({
           ) : null}
 
           {allSkills.length > 0 ? (
-            <Section eyebrow="Compétences" title="Ce que je sais faire" icon={Sparkles}>
+            <Section eyebrow={t("profile.section.skills.eyebrow")} title={t("profile.section.skills.title")} icon={Sparkles}>
               <div className="flex flex-wrap gap-2">
                 {allSkills.map((skill, idx) => (
                   <span
@@ -148,7 +152,7 @@ export function ProfileFullView({
           ) : null}
 
           {experience.length > 0 ? (
-            <Section eyebrow="Parcours" title="Expériences" icon={Briefcase}>
+            <Section eyebrow={t("profile.section.experiences.eyebrow")} title={t("profile.section.experiences.title")} icon={Briefcase}>
               <ol className="relative space-y-8 border-l border-[var(--border)] pl-8">
                 {experience.map((exp, idx) => (
                   <li key={`${exp.company}-${exp.role}-${idx}`} className="relative">
@@ -175,7 +179,7 @@ export function ProfileFullView({
           ) : null}
 
           {projects.length > 0 ? (
-            <Section eyebrow="Réalisations" title="Projets" icon={Link2}>
+            <Section eyebrow={t("profile.section.projects.eyebrow")} title={t("profile.section.projects.title")} icon={Link2}>
               <div className="grid gap-5 sm:grid-cols-2">
                 {projects.map((project, idx) => (
                   <div
@@ -206,7 +210,7 @@ export function ProfileFullView({
           ) : null}
 
           {education.length > 0 ? (
-            <Section eyebrow="Études" title="Formation" icon={GraduationCap}>
+            <Section eyebrow={t("profile.section.education.eyebrow")} title={t("profile.section.education.title")} icon={GraduationCap}>
               <ul className="space-y-4">
                 {education.map((edu, idx) => (
                   <li key={`${edu.school}-${edu.degree}-${idx}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -225,10 +229,10 @@ export function ProfileFullView({
           ) : null}
 
           {(cleanCertifications.length > 0 || languages.length > 0 || cleanInterests.length > 0) && (
-            <Section eyebrow="En plus" title="Le reste">
+            <Section eyebrow={t("profile.section.extras.eyebrow")} title={t("profile.section.extras.title")}>
               <div className="grid gap-6 sm:grid-cols-3">
                 {cleanCertifications.length > 0 ? (
-                  <FactBlock title="Certifications">
+                  <FactBlock title={t("profile.label.certifications")}>
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
                       {cleanCertifications.map((c, idx) => (
                         <li key={`${c}-${idx}`}>{c}</li>
@@ -237,7 +241,7 @@ export function ProfileFullView({
                   </FactBlock>
                 ) : null}
                 {languages.length > 0 ? (
-                  <FactBlock title="Langues">
+                  <FactBlock title={t("profile.label.languages")}>
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
                       {languages.map((l, idx) => (
                         <li key={`${l.name}-${idx}`}>
@@ -249,7 +253,7 @@ export function ProfileFullView({
                   </FactBlock>
                 ) : null}
                 {cleanInterests.length > 0 ? (
-                  <FactBlock title="Passions">
+                  <FactBlock title={t("profile.label.interests")}>
                     <ul className="space-y-1.5 text-[var(--muted-strong)]">
                       {cleanInterests.map((i, idx) => (
                         <li key={`${i}-${idx}`}>{i}</li>

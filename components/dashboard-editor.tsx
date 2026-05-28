@@ -2,6 +2,7 @@
 
 import { AmbientBackground } from "@/components/ambient-background";
 import { AvatarUploader } from "@/components/avatar-uploader";
+import { useT } from "@/components/locale-provider";
 import { Logo } from "@/components/logo";
 import { PhoneFrame } from "@/components/phone-frame";
 import { ProfileView } from "@/components/profile-view";
@@ -27,7 +28,6 @@ function splitList(value: string): string[] {
     .filter(Boolean);
 }
 
-/** Auto-préfixe https:// si l'user a tapé un domaine sans protocole. */
 function normalizeUrl(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -35,7 +35,6 @@ function normalizeUrl(value: string): string {
   return `https://${trimmed}`;
 }
 
-/** Clé localStorage par user. Évite le mix entre 2 comptes différents. */
 function draftStorageKey(userId: string): string {
   return userId ? `profyl:draft:${userId}` : "profyl:draft:anon";
 }
@@ -122,13 +121,6 @@ function buildContent(state: FormState): ProfileContent {
   };
 }
 
-const errorMessages: Record<string, string> = {
-  "username-reserve": "Ce username est réservé.",
-  "username-invalide": "Username invalide (3–30 caractères, minuscules, chiffres, tirets).",
-  "username-pris": "Ce username est déjà pris. Choisis-en un autre.",
-  "contenu-invalide": "Vérifie le nom, le titre, la photo et les liens URL."
-};
-
 export function DashboardEditor({
   initialUsername = "",
   initialContent = defaultProfileContent,
@@ -146,14 +138,13 @@ export function DashboardEditor({
   userEmail?: string;
   userId?: string;
 }) {
+  const t = useT();
   const [state, setState] = useState<FormState>(() =>
     contentToFormState(initialUsername, initialContent)
   );
   const [restoredFromDraft, setRestoredFromDraft] = useState(false);
 
-  // ----- Restore draft depuis localStorage au mount -----
-  // Si l'user a une session interrompue (erreur de validation, fermeture
-  // d'onglet, crash...), on récupère ce qu'il avait tapé.
+  // Restore draft depuis localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
     const key = draftStorageKey(userId);
@@ -161,40 +152,34 @@ export function DashboardEditor({
       const raw = window.localStorage.getItem(key);
       if (!raw) return;
       const parsed = JSON.parse(raw) as { state: FormState; savedAt: number };
-      // On ne restaure que si le draft est plus récent qu'1h sans publish réussi.
-      // (sinon données stale qui écrasent un profil tout juste sauvegardé)
       const isFresh = Date.now() - parsed.savedAt < 60 * 60 * 1000;
       if (!isFresh) return;
-      // On ne restaure que si le draft a du contenu sur les champs critiques.
       if (parsed.state.heroFullName || parsed.state.username) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setState(parsed.state);
         setRestoredFromDraft(true);
       }
     } catch {
-      // ignore parse errors
+      /* ignore */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ----- Autosave dans localStorage à chaque changement (debounced 400ms) -----
+  // Autosave
   useEffect(() => {
     if (typeof window === "undefined") return;
     const key = draftStorageKey(userId);
     const timer = setTimeout(() => {
       try {
-        window.localStorage.setItem(
-          key,
-          JSON.stringify({ state, savedAt: Date.now() })
-        );
+        window.localStorage.setItem(key, JSON.stringify({ state, savedAt: Date.now() }));
       } catch {
-        // localStorage plein ou désactivé → ignore
+        /* ignore */
       }
     }, 400);
     return () => clearTimeout(timer);
   }, [state, userId]);
 
-  // ----- Nettoyer le draft après publish réussi -----
+  // Clean draft post-publish
   useEffect(() => {
     if (saved && typeof window !== "undefined") {
       try {
@@ -207,7 +192,6 @@ export function DashboardEditor({
     }
   }, [saved, userId]);
 
-  // ----- Normaliser les URLs avant submit (pour éviter les Zod URL errors) -----
   const normalizedContent = useMemo(() => {
     const base = buildContent(state);
     return {
@@ -225,24 +209,28 @@ export function DashboardEditor({
   }, [state]);
 
   const previewContent = normalizedContent;
-  const previewUsername = state.username || "ton-username";
+  const previewUsername = state.username || t("profile.placeholder.username");
   const contentJson = useMemo(() => JSON.stringify(normalizedContent), [normalizedContent]);
-  // initialUsername === non vide = profil déjà publié, on est en édition
-  const isEditMode = Boolean(initialUsername);
-  void isEditMode; // réservé pour usage futur (refactor multi-profils)
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((prev) => ({ ...prev, [key]: value }));
   }
 
-  function updateArrayItem<T>(key: "experiences" | "education" | "projects" | "languages", idx: number, patch: Partial<T>) {
+  function updateArrayItem<T>(
+    key: "experiences" | "education" | "projects" | "languages",
+    idx: number,
+    patch: Partial<T>
+  ) {
     setState((prev) => ({
       ...prev,
       [key]: (prev[key] as T[]).map((item, i) => (i === idx ? { ...item, ...patch } : item))
     }));
   }
 
-  function removeArrayItem(key: "experiences" | "education" | "projects" | "languages", idx: number) {
+  function removeArrayItem(
+    key: "experiences" | "education" | "projects" | "languages",
+    idx: number
+  ) {
     setState((prev) => {
       const arr = prev[key] as unknown[];
       return { ...prev, [key]: arr.filter((_, i) => i !== idx) } as FormState;
@@ -277,7 +265,7 @@ export function DashboardEditor({
                 href={`/dashboard?username=${DEMO_USERNAME}`}
                 className="hidden text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline"
               >
-                Exemple
+                {t("dashboard.see_example")}
               </Link>
               {state.username ? (
                 <Link
@@ -285,20 +273,20 @@ export function DashboardEditor({
                   target="_blank"
                   className="hidden items-center gap-2 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
                 >
-                  Voir la page
+                  {t("dashboard.see_page")}
                   <ExternalLink className="h-4 w-4" />
                 </Link>
               ) : null}
               <Button type="submit" form="profile-form" variant="accent" size="sm">
                 <Save className="mr-2 h-4 w-4" />
-                Publier
+                {t("dashboard.publish")}
               </Button>
               {userEmail ? (
                 <form action={signOut}>
                   <button
                     type="submit"
                     className="hidden items-center gap-1.5 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
-                    title={`Connecté en tant que ${userEmail}`}
+                    title={userEmail}
                   >
                     <LogOut className="h-4 w-4" />
                   </button>
@@ -308,9 +296,9 @@ export function DashboardEditor({
           </div>
         </header>
 
-        <div className="relative border-b border-[var(--border)] bg-white/60 p-6 lg:hidden">
+        <div className="relative border-b border-[var(--border)] bg-[var(--surface-solid)]/60 p-6 lg:hidden">
           <p className="mb-4 text-center text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
-            Aperçu
+            {t("dashboard.preview_mobile")}
           </p>
           <PhoneFrame className="max-w-[300px]">
             <ProfileView username={previewUsername} content={previewContent} compact />
@@ -320,7 +308,8 @@ export function DashboardEditor({
         <div className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-4 py-8 lg:px-6">
           {saved ? (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-              ✓ Profil publié avec succès — visite{" "}
+              ✓{" "}
+              {t("dashboard.saved", { url: "" }).replace("{url}", "").trim()}{" "}
               <Link
                 href={`/${state.username}`}
                 target="_blank"
@@ -332,33 +321,25 @@ export function DashboardEditor({
           ) : null}
           {restoredFromDraft && !saved ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              📝 Brouillon récupéré automatiquement — on a restauré ce que
-              tu avais commencé à remplir.
+              {t("dashboard.draft_restored")}
             </div>
           ) : null}
           {error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-              <p className="font-medium">⚠ {errorMessages[error] ?? "Erreur lors de la sauvegarde."}</p>
+              <p className="font-medium">⚠ {t(`dashboard.error.${error.replace(/-/g, "_")}`)}</p>
               {error === "contenu-invalide" ? (
-                <p className="mt-1 text-xs text-red-700">
-                  Vérifie surtout : <strong>nom complet</strong>,{" "}
-                  <strong>titre professionnel</strong> et <strong>photo Hero</strong> qui sont
-                  obligatoires.
-                </p>
+                <p className="mt-1 text-xs text-red-700">{t("dashboard.error.content_hint")}</p>
               ) : null}
-              <p className="mt-1 text-xs text-red-700">
-                Tes données sont sauvegardées — tu n&apos;as rien perdu.
-              </p>
+              <p className="mt-1 text-xs text-red-700">{t("dashboard.error.reassurance")}</p>
             </div>
           ) : null}
 
           <form id="profile-form" action={saveProfile} className="space-y-5">
-            {/* hidden input portant tout le content sérialisé */}
             <input type="hidden" name="content" value={contentJson} />
 
             <SectionCard
-              title="Ton adresse Profyl"
-              description="Choisis l'URL que tu partageras aux recruteurs."
+              title={t("dashboard.section.address.title")}
+              description={t("dashboard.section.address.desc")}
             >
               <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-1">
                 <span className="shrink-0 text-sm text-[var(--muted)]">profyl.io/</span>
@@ -367,22 +348,19 @@ export function DashboardEditor({
                   required
                   value={state.username}
                   onChange={(e) =>
-                    update(
-                      "username",
-                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
-                    )
+                    update("username", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
                   }
-                  placeholder="jean-dupont"
+                  placeholder={t("dashboard.field.username.placeholder")}
                   className="h-11 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
                 />
               </div>
             </SectionCard>
 
             <SectionCard
-              title="Identité"
-              description="La photo est obligatoire sur un CV français."
+              title={t("dashboard.section.identity.title")}
+              description={t("dashboard.section.identity.desc")}
             >
-              <Field label="Photo Hero" required>
+              <Field label={t("dashboard.field.photo")} required>
                 {userId ? (
                   <AvatarUploader
                     value={state.heroPhotoUrl}
@@ -399,64 +377,64 @@ export function DashboardEditor({
                 )}
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Nom complet" required>
+                <Field label={t("dashboard.field.fullname")} required>
                   <Input
                     required
                     value={state.heroFullName}
                     onChange={(e) => update("heroFullName", e.target.value)}
-                    placeholder="Jean Dupont"
+                    placeholder={t("dashboard.field.fullname.placeholder")}
                   />
                 </Field>
-                <Field label="Titre professionnel" required>
+                <Field label={t("dashboard.field.title")} required>
                   <Input
                     required
                     value={state.heroTitle}
                     onChange={(e) => update("heroTitle", e.target.value)}
-                    placeholder="Product Designer"
+                    placeholder={t("dashboard.field.title.placeholder")}
                   />
                 </Field>
-                <Field label="Ville">
+                <Field label={t("dashboard.field.city")}>
                   <Input
                     value={state.heroLocation}
                     onChange={(e) => update("heroLocation", e.target.value)}
-                    placeholder="Paris, France"
+                    placeholder={t("dashboard.field.city.placeholder")}
                   />
                 </Field>
               </div>
-              <Field label="Résumé">
+              <Field label={t("dashboard.field.summary")}>
                 <Textarea
                   value={state.heroSummary}
                   onChange={(e) => update("heroSummary", e.target.value)}
-                  placeholder="Quelques lignes sur ton parcours et ce que tu recherches..."
+                  placeholder={t("dashboard.field.summary.placeholder")}
                 />
               </Field>
             </SectionCard>
 
-            <SectionCard title="Contact">
+            <SectionCard title={t("dashboard.section.contact.title")}>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Email">
+                <Field label={t("dashboard.field.email")}>
                   <Input
                     type="email"
                     value={state.contactEmail}
                     onChange={(e) => update("contactEmail", e.target.value)}
-                    placeholder="jean@email.com"
+                    placeholder={t("dashboard.field.email.placeholder")}
                   />
                 </Field>
-                <Field label="Téléphone">
+                <Field label={t("dashboard.field.phone")}>
                   <Input
                     value={state.contactPhone}
                     onChange={(e) => update("contactPhone", e.target.value)}
-                    placeholder="+33 6 12 34 56 78"
+                    placeholder={t("dashboard.field.phone.placeholder")}
                   />
                 </Field>
-                <Field label="Site web">
+                <Field label={t("dashboard.field.website")}>
                   <Input
                     value={state.contactWebsite}
                     onChange={(e) => update("contactWebsite", e.target.value)}
-                    placeholder="https://monsite.fr"
+                    placeholder={t("dashboard.field.website.placeholder")}
                   />
                 </Field>
-                <Field label="LinkedIn">
+                <Field label={t("dashboard.field.linkedin")}>
                   <Input
                     value={state.contactLinkedin}
                     onChange={(e) => update("contactLinkedin", e.target.value)}
@@ -466,44 +444,47 @@ export function DashboardEditor({
               </div>
             </SectionCard>
 
-            <SectionCard title="Compétences" description="Sépare par des virgules.">
-              <Field label="Compétences clés">
+            <SectionCard
+              title={t("dashboard.section.skills.title")}
+              description={t("dashboard.section.skills.desc")}
+            >
+              <Field label={t("dashboard.field.skills_core")}>
                 <Input
                   value={state.skillsCore}
                   onChange={(e) => update("skillsCore", e.target.value)}
-                  placeholder="UX Research, Figma, Prototypage"
+                  placeholder={t("dashboard.field.skills_core.placeholder")}
                 />
               </Field>
-              <Field label="Outils">
+              <Field label={t("dashboard.field.skills_tools")}>
                 <Input
                   value={state.skillsTools}
                   onChange={(e) => update("skillsTools", e.target.value)}
-                  placeholder="Notion, Jira, Webflow"
+                  placeholder={t("dashboard.field.skills_tools.placeholder")}
                 />
               </Field>
             </SectionCard>
 
-            {/* ---------- EXPÉRIENCES (array dynamique) ---------- */}
+            {/* EXPÉRIENCES */}
             <RepeatableSection
-              title="Expériences"
-              description="Du plus récent au plus ancien."
+              title={t("dashboard.section.experiences.title")}
+              description={t("dashboard.section.experiences.desc")}
               count={state.experiences.length}
               plan={plan}
               sectionKey="experiences"
               onAdd={addExperience}
-              addLabel="Ajouter une expérience"
-              emptyLabel="Aucune expérience pour l'instant"
+              addLabel={t("dashboard.add.experience")}
+              emptyLabel={t("dashboard.empty.experience")}
             >
               {state.experiences.map((exp, idx) => (
                 <RepeatItem
                   key={idx}
                   index={idx}
-                  title={exp.role || exp.company || "Nouvelle expérience"}
+                  title={exp.role || exp.company || t("dashboard.repeat.new_experience")}
                   subtitle={exp.company}
                   onRemove={() => removeArrayItem("experiences", idx)}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Entreprise">
+                    <Field label={t("dashboard.field.company")}>
                       <Input
                         value={exp.company}
                         onChange={(e) =>
@@ -513,7 +494,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Poste">
+                    <Field label={t("dashboard.field.role")}>
                       <Input
                         value={exp.role}
                         onChange={(e) =>
@@ -521,7 +502,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Début">
+                    <Field label={t("dashboard.field.start")}>
                       <Input
                         value={exp.start}
                         onChange={(e) =>
@@ -530,17 +511,17 @@ export function DashboardEditor({
                         placeholder="2022"
                       />
                     </Field>
-                    <Field label="Fin">
+                    <Field label={t("dashboard.field.end")}>
                       <Input
                         value={exp.end}
                         onChange={(e) =>
                           updateArrayItem<Experience>("experiences", idx, { end: e.target.value })
                         }
-                        placeholder="2025 ou Aujourd'hui"
+                        placeholder={t("dashboard.field.end.placeholder")}
                       />
                     </Field>
                   </div>
-                  <Field label="Description">
+                  <Field label={t("dashboard.field.description")}>
                     <Textarea
                       value={exp.description}
                       onChange={(e) =>
@@ -554,26 +535,26 @@ export function DashboardEditor({
               ))}
             </RepeatableSection>
 
-            {/* ---------- FORMATIONS ---------- */}
+            {/* FORMATIONS */}
             <RepeatableSection
-              title="Formations"
+              title={t("dashboard.section.education.title")}
               count={state.education.length}
               plan={plan}
               sectionKey="education"
               onAdd={addEducation}
-              addLabel="Ajouter une formation"
-              emptyLabel="Aucune formation pour l'instant"
+              addLabel={t("dashboard.add.education")}
+              emptyLabel={t("dashboard.empty.education")}
             >
               {state.education.map((edu, idx) => (
                 <RepeatItem
                   key={idx}
                   index={idx}
-                  title={edu.degree || "Nouvelle formation"}
+                  title={edu.degree || t("dashboard.repeat.new_education")}
                   subtitle={edu.school}
                   onRemove={() => removeArrayItem("education", idx)}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="École">
+                    <Field label={t("dashboard.field.school")}>
                       <Input
                         value={edu.school}
                         onChange={(e) =>
@@ -581,7 +562,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Diplôme">
+                    <Field label={t("dashboard.field.degree")}>
                       <Input
                         value={edu.degree}
                         onChange={(e) =>
@@ -589,7 +570,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Début">
+                    <Field label={t("dashboard.field.start")}>
                       <Input
                         value={edu.start}
                         onChange={(e) =>
@@ -597,7 +578,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Fin">
+                    <Field label={t("dashboard.field.end")}>
                       <Input
                         value={edu.end}
                         onChange={(e) =>
@@ -610,25 +591,25 @@ export function DashboardEditor({
               ))}
             </RepeatableSection>
 
-            {/* ---------- PROJETS ---------- */}
+            {/* PROJETS */}
             <RepeatableSection
-              title="Projets"
+              title={t("dashboard.section.projects.title")}
               count={state.projects.length}
               plan={plan}
               sectionKey="projects"
               onAdd={addProject}
-              addLabel="Ajouter un projet"
-              emptyLabel="Aucun projet pour l'instant"
+              addLabel={t("dashboard.add.project")}
+              emptyLabel={t("dashboard.empty.project")}
             >
               {state.projects.map((project, idx) => (
                 <RepeatItem
                   key={idx}
                   index={idx}
-                  title={project.name || "Nouveau projet"}
+                  title={project.name || t("dashboard.repeat.new_project")}
                   onRemove={() => removeArrayItem("projects", idx)}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Nom">
+                    <Field label={t("dashboard.field.project_name")}>
                       <Input
                         value={project.name}
                         onChange={(e) =>
@@ -636,7 +617,7 @@ export function DashboardEditor({
                         }
                       />
                     </Field>
-                    <Field label="Lien">
+                    <Field label={t("dashboard.field.project_link")}>
                       <Input
                         value={project.link}
                         onChange={(e) =>
@@ -646,7 +627,7 @@ export function DashboardEditor({
                       />
                     </Field>
                   </div>
-                  <Field label="Description">
+                  <Field label={t("dashboard.field.description")}>
                     <Textarea
                       value={project.description}
                       onChange={(e) =>
@@ -660,41 +641,41 @@ export function DashboardEditor({
               ))}
             </RepeatableSection>
 
-            {/* ---------- LANGUES ---------- */}
+            {/* LANGUES */}
             <RepeatableSection
-              title="Langues"
+              title={t("dashboard.section.languages.title")}
               count={state.languages.length}
               plan={plan}
               sectionKey="languages"
               onAdd={addLanguage}
-              addLabel="Ajouter une langue"
-              emptyLabel="Aucune langue pour l'instant"
+              addLabel={t("dashboard.add.language")}
+              emptyLabel={t("dashboard.empty.language")}
             >
               {state.languages.map((lang, idx) => (
                 <RepeatItem
                   key={idx}
                   index={idx}
-                  title={lang.name || "Nouvelle langue"}
+                  title={lang.name || t("dashboard.repeat.new_language")}
                   subtitle={lang.level}
                   onRemove={() => removeArrayItem("languages", idx)}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Langue">
+                    <Field label={t("dashboard.field.language")}>
                       <Input
                         value={lang.name}
                         onChange={(e) =>
                           updateArrayItem<Language>("languages", idx, { name: e.target.value })
                         }
-                        placeholder="Anglais"
+                        placeholder={t("dashboard.field.language.placeholder")}
                       />
                     </Field>
-                    <Field label="Niveau">
+                    <Field label={t("dashboard.field.language_level")}>
                       <Input
                         value={lang.level}
                         onChange={(e) =>
                           updateArrayItem<Language>("languages", idx, { level: e.target.value })
                         }
-                        placeholder="C1 / Courant"
+                        placeholder={t("dashboard.field.language_level.placeholder")}
                       />
                     </Field>
                   </div>
@@ -702,19 +683,19 @@ export function DashboardEditor({
               ))}
             </RepeatableSection>
 
-            <SectionCard title="En plus">
-              <Field label="Certifications">
+            <SectionCard title={t("dashboard.section.extras.title")}>
+              <Field label={t("dashboard.field.certifications")}>
                 <Input
                   value={state.certifications}
                   onChange={(e) => update("certifications", e.target.value)}
-                  placeholder="AWS, Google UX, PSPO"
+                  placeholder={t("dashboard.field.certifications.placeholder")}
                 />
               </Field>
-              <Field label="Centres d'intérêt">
+              <Field label={t("dashboard.field.interests")}>
                 <Input
                   value={state.interests}
                   onChange={(e) => update("interests", e.target.value)}
-                  placeholder="Randonnée, Photographie"
+                  placeholder={t("dashboard.field.interests.placeholder")}
                 />
               </Field>
             </SectionCard>
@@ -722,13 +703,13 @@ export function DashboardEditor({
         </div>
       </div>
 
-      <aside className="relative hidden min-h-screen w-full max-w-[440px] flex-col border-l border-[var(--border)] bg-white/50 lg:flex">
+      <aside className="relative hidden min-h-screen w-full max-w-[440px] flex-col border-l border-[var(--border)] bg-[var(--surface-solid)]/50 lg:flex">
         <AmbientBackground variant="subtle" />
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center p-8">
           <div className="mb-6 flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--muted)]">
-              Aperçu live
+              {t("dashboard.preview_live")}
             </p>
           </div>
           <PhoneFrame>
@@ -788,6 +769,7 @@ function RepeatableSection({
   emptyLabel: string;
   children: ReactNode;
 }) {
+  const t = useT();
   const limit = getLimit(plan, sectionKey);
   const limitReached = !canAdd(plan, sectionKey, count);
   const limitText = limit === Infinity ? null : `${count}/${limit}`;
@@ -819,21 +801,20 @@ function RepeatableSection({
           <div className="flex items-center gap-3 rounded-xl border border-[var(--accent-soft-3)] bg-[var(--accent-soft-3)]/40 px-4 py-3 text-sm">
             <Lock className="h-4 w-4 shrink-0 text-[var(--accent-3)]" />
             <p className="flex-1 text-[var(--muted-strong)]">
-              Limite Free atteinte ({limit}).{" "}
+              {t("dashboard.limit.reached", { limit })}{" "}
               <Link
                 href="/pricing"
                 className="font-medium text-[var(--foreground)] underline decoration-[var(--accent)] decoration-2 underline-offset-4"
               >
-                Passe en Pro
-              </Link>{" "}
-              pour ajouter plus.
+                {t("dashboard.limit.upgrade_link")}
+              </Link>
             </p>
           </div>
         ) : (
           <button
             type="button"
             onClick={onAdd}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border-strong)] bg-white/50 px-4 py-3 text-sm font-medium text-[var(--muted-strong)] transition hover:border-[var(--accent)] hover:bg-white hover:text-[var(--accent)]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border-strong)] bg-[var(--surface-solid)]/50 px-4 py-3 text-sm font-medium text-[var(--muted-strong)] transition hover:border-[var(--accent)] hover:bg-[var(--surface-solid)] hover:text-[var(--accent)]"
           >
             <Plus className="h-4 w-4" />
             {addLabel}
@@ -857,10 +838,11 @@ function RepeatItem({
   onRemove: () => void;
   children: ReactNode;
 }) {
+  const t = useT();
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white shadow-[var(--shadow-sm)]">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-solid)] shadow-[var(--shadow-sm)]">
       <header className="flex items-center gap-3 px-4 py-3">
         <button
           type="button"
@@ -881,10 +863,10 @@ function RepeatItem({
         <button
           type="button"
           onClick={() => {
-            if (confirm("Supprimer cet élément ?")) onRemove();
+            if (confirm(t("common.confirm.delete"))) onRemove();
           }}
           className="rounded-lg p-1.5 text-[var(--muted)] transition hover:bg-red-50 hover:text-red-600"
-          aria-label="Supprimer"
+          aria-label={t("dashboard.repeat.delete")}
         >
           <Trash2 className="h-4 w-4" />
         </button>

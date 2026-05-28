@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/locale-provider";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import imageCompression from "browser-image-compression";
 import { Camera, Loader2, Trash2, Upload } from "lucide-react";
@@ -24,6 +25,7 @@ export function AvatarUploader({
   onChange: (url: string) => void;
   userId: string;
 }) {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,11 +35,11 @@ export function AvatarUploader({
     setError(null);
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError("Format non supporté. Utilise JPEG, PNG ou WebP.");
+      setError(t("dashboard.upload.error_format"));
       return;
     }
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      setError(`Image trop lourde (max ${MAX_FILE_SIZE_MB} Mo).`);
+      setError(t("dashboard.upload.error_size", { max: MAX_FILE_SIZE_MB }));
       return;
     }
 
@@ -74,7 +76,7 @@ export function AvatarUploader({
       onChange(publicUrl);
     } catch (err) {
       console.error("Upload failed", err);
-      setError(err instanceof Error ? err.message : "Échec de l'upload. Réessaie.");
+      setError(err instanceof Error ? err.message : t("dashboard.upload.error_failed"));
     } finally {
       setBusy(false);
     }
@@ -92,7 +94,7 @@ export function AvatarUploader({
   }
 
   function handleRemove() {
-    if (!busy && confirm("Supprimer la photo ?")) onChange("");
+    if (!busy && confirm(t("dashboard.upload.delete_confirm"))) onChange("");
   }
 
   return (
@@ -138,15 +140,15 @@ export function AvatarUploader({
         <div className="flex-1">
           <p className="font-medium text-[var(--foreground)]">
             {busy
-              ? "Compression et upload..."
+              ? t("dashboard.upload.busy")
               : value
-                ? "Changer la photo"
-                : "Glisse une photo ou clique"}
+                ? t("dashboard.upload.change")
+                : t("dashboard.upload.drop")}
           </p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            JPEG · PNG · WebP · max {MAX_FILE_SIZE_MB} Mo
+            {t("dashboard.upload.hint", { max: MAX_FILE_SIZE_MB })}
             <br />
-            Compressée automatiquement à 500 Ko / 1200 px.
+            {t("dashboard.upload.hint2")}
           </p>
         </div>
 
@@ -163,7 +165,7 @@ export function AvatarUploader({
                   handleRemove();
                 }}
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100"
-                aria-label="Supprimer la photo"
+                aria-label={t("dashboard.upload.delete_label")}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

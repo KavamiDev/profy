@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 import type { ProfileContent } from "@/types/profile";
 import type { ComponentType, ReactNode } from "react";
@@ -40,6 +43,7 @@ export function ProfileView({
   className?: string;
   compact?: boolean;
 }) {
+  const t = useT();
   const { hero, contact, skills, experience, education, projects, certifications, languages, extras } =
     content;
 
@@ -78,7 +82,7 @@ export function ProfileView({
       <div className="space-y-5 px-5 pb-7 pt-4">
         <header className="text-center">
           <p className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-hover)] px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-[var(--muted)]">
-            profyl.io/{username || "ton-username"}
+            profyl.io/{username || t("profile.placeholder.username")}
           </p>
           <h1
             className={cn(
@@ -86,7 +90,7 @@ export function ProfileView({
               compact ? "text-xl" : "text-2xl"
             )}
           >
-            {hero.fullName || "Ton nom"}
+            {hero.fullName || t("profile.label.your_name")}
           </h1>
           {hero.title ? (
             <p className="mt-1 text-base font-medium text-[var(--muted-strong)]">{hero.title}</p>
@@ -114,7 +118,7 @@ export function ProfileView({
               <ContactLink icon={Phone} href={`tel:${contact.phone}`} label={contact.phone} />
             ) : null}
             {contact.website ? (
-              <ContactLink icon={Globe} href={contact.website} label="Site web" external />
+              <ContactLink icon={Globe} href={contact.website} label={t("profile.label.website")} external />
             ) : null}
             {contact.linkedin ? (
               <ContactLink icon={Link2} href={contact.linkedin} label="LinkedIn" external />
@@ -123,7 +127,7 @@ export function ProfileView({
         ) : null}
 
         {allSkills.length > 0 ? (
-          <ProfileBlock title="Compétences" icon={Sparkles}>
+          <ProfileBlock title={t("profile.section.skills.compact")} icon={Sparkles}>
             <div className="flex flex-wrap gap-2">
               {allSkills.map((skill, idx) => (
                 <span
@@ -138,7 +142,7 @@ export function ProfileView({
         ) : null}
 
         {experience.length > 0 ? (
-          <ProfileBlock title="Expérience" icon={Briefcase}>
+          <ProfileBlock title={t("profile.section.experiences.compact")} icon={Briefcase}>
             {experience.map((exp) => (
               <div
                 key={`${exp.company}-${exp.role}`}
@@ -160,7 +164,7 @@ export function ProfileView({
         ) : null}
 
         {education.length > 0 ? (
-          <ProfileBlock title="Formation" icon={GraduationCap}>
+          <ProfileBlock title={t("profile.section.education.compact")} icon={GraduationCap}>
             {education.map((edu) => (
               <div key={`${edu.school}-${edu.degree}`}>
                 <p className="font-medium">{edu.degree}</p>
@@ -174,7 +178,7 @@ export function ProfileView({
         ) : null}
 
         {projects.length > 0 ? (
-          <ProfileBlock title="Projets" icon={Link2}>
+          <ProfileBlock title={t("profile.section.projects.compact")} icon={Link2}>
             {projects.map((project) => (
               <div key={project.name}>
                 {project.link ? (
@@ -198,22 +202,28 @@ export function ProfileView({
         ) : null}
 
         {(certifications.length > 0 || languages.length > 0 || extras.interests.length > 0) && (
-          <ProfileBlock title="En plus" icon={Sparkles}>
+          <ProfileBlock title={t("profile.section.extras.compact")} icon={Sparkles}>
             {certifications.length > 0 ? (
               <p className="text-sm text-[var(--muted-strong)]">
-                <span className="font-medium text-[var(--foreground)]">Certifications · </span>
+                <span className="font-medium text-[var(--foreground)]">
+                  {t("profile.extra.certifications")}
+                </span>
                 {certifications.join(", ")}
               </p>
             ) : null}
             {languages.length > 0 ? (
               <p className="text-sm text-[var(--muted-strong)]">
-                <span className="font-medium text-[var(--foreground)]">Langues · </span>
+                <span className="font-medium text-[var(--foreground)]">
+                  {t("profile.extra.languages")}
+                </span>
                 {languages.map((l) => `${l.name} (${l.level})`).join(", ")}
               </p>
             ) : null}
             {extras.interests.length > 0 ? (
               <p className="text-sm text-[var(--muted-strong)]">
-                <span className="font-medium text-[var(--foreground)]">Passions · </span>
+                <span className="font-medium text-[var(--foreground)]">
+                  {t("profile.extra.interests")}
+                </span>
                 {extras.interests.join(", ")}
               </p>
             ) : null}
