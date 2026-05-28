@@ -2,34 +2,12 @@
 
 import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
+import { combinedSkills, dedupCaseInsensitive } from "@/lib/profile/dedup";
+import { ContactLinks, hasAnyContact } from "@/components/profile/ContactLinks";
 import type { ProfileContent } from "@/types/profile";
-import {
-  Briefcase,
-  GraduationCap,
-  Globe,
-  Link2,
-  Mail,
-  MapPin,
-  Phone,
-  Sparkles
-} from "lucide-react";
+import { Briefcase, GraduationCap, Link2, MapPin, Sparkles } from "lucide-react";
 import Image from "next/image";
 import type { ComponentType, ReactNode } from "react";
-
-/**
- * Dedup case-insensitive en conservant la première occurrence telle quelle.
- */
-function dedupCaseInsensitive(items: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const item of items) {
-    const key = item.trim().toLowerCase();
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    result.push(item.trim());
-  }
-  return result;
-}
 
 /**
  * Page profil publique format magazine.
@@ -54,8 +32,8 @@ export function ProfileFullView({
   const t = useT();
   const { hero, contact, skills, experience, education, projects, certifications, languages, extras } =
     content;
-  const hasContact = contact.email || contact.phone || contact.website || contact.linkedin;
-  const allSkills = dedupCaseInsensitive([...skills.core, ...skills.tools]);
+  const hasContact = hasAnyContact(contact);
+  const allSkills = combinedSkills(skills);
   const cleanCertifications = dedupCaseInsensitive(certifications);
   const cleanInterests = dedupCaseInsensitive(extras.interests);
 
@@ -109,18 +87,7 @@ export function ProfileFullView({
 
             {hasContact ? (
               <div className="mt-8 grid w-full max-w-xs gap-2 md:max-w-none">
-                {contact.email ? (
-                  <ContactLink icon={Mail} href={`mailto:${contact.email}`} label={contact.email} />
-                ) : null}
-                {contact.phone ? (
-                  <ContactLink icon={Phone} href={`tel:${contact.phone}`} label={contact.phone} />
-                ) : null}
-                {contact.website ? (
-                  <ContactLink icon={Globe} href={contact.website} label={t("profile.label.website")} external />
-                ) : null}
-                {contact.linkedin ? (
-                  <ContactLink icon={Link2} href={contact.linkedin} label="LinkedIn" external />
-                ) : null}
+                <ContactLinks contact={contact} variant="full" />
               </div>
             ) : null}
           </div>
@@ -308,28 +275,3 @@ function FactBlock({ title, children }: { title: string; children: ReactNode }) 
   );
 }
 
-function ContactLink({
-  icon: Icon,
-  href,
-  label,
-  external
-}: {
-  icon: ComponentType<{ className?: string }>;
-  href: string;
-  label: string;
-  external?: boolean;
-}) {
-  return (
-    <a
-      href={href}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noreferrer" : undefined}
-      className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-solid)]px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-sm)]"
-    >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-hover)] text-[var(--muted)]">
-        <Icon className="h-4 w-4" />
-      </span>
-      <span className="truncate">{label}</span>
-    </a>
-  );
-}
