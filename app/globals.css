@@ -118,6 +118,10 @@ body {
   z-index: 50;
   opacity: 0.045;
   mix-blend-mode: multiply;
+}
+:root[data-theme="dark"] .grain::after {
+  opacity: 0.08;
+  mix-blend-mode: screen;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -257,13 +261,19 @@ body {
 }
 .sticker--cream {
   background: var(--accent-soft-3);
-  color: #6f4a1f;
-  border-color: #f1d9b3;
+  color: var(--sticker-cream-fg, #6f4a1f);
+  border-color: var(--sticker-cream-bd, #f1d9b3);
 }
 .sticker--mint {
   background: var(--accent-soft-4);
-  color: #1f5238;
-  border-color: #b8d8c5;
+  color: var(--sticker-mint-fg, #1f5238);
+  border-color: var(--sticker-mint-bd, #b8d8c5);
+}
+:root[data-theme="dark"] {
+  --sticker-cream-fg: #f7c97a;
+  --sticker-cream-bd: #5a4423;
+  --sticker-mint-fg: #9adcb6;
+  --sticker-mint-bd: #2a4a39;
 }
 .sticker--ink {
   background: var(--accent-5);
@@ -281,7 +291,7 @@ body {
 /* ---------- Surfaces ---------- */
 
 .glass {
-  background: rgba(255, 255, 255, 0.78);
+  background: color-mix(in srgb, var(--surface-solid) 78%, transparent);
   border: 1px solid var(--border);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -314,7 +324,7 @@ body {
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: #fff;
+  background: var(--surface-solid);
   border: 1px solid var(--border-strong);
   box-shadow:
     0 0 0 1px rgba(20, 19, 13, 0.03),
@@ -338,8 +348,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(20, 19, 13, 0.08);
+  background: color-mix(in srgb, var(--surface-solid) 90%, transparent);
+  color: var(--muted-strong);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   font-family: var(--font-sans);
@@ -437,7 +448,7 @@ body {
 /* ---------- Decorative SVGs ---------- */
 
 .dot-grid {
-  background-image: radial-gradient(rgba(20, 19, 13, 0.10) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in srgb, var(--foreground) 14%, transparent) 1px, transparent 1px);
   background-size: 18px 18px;
 }
 

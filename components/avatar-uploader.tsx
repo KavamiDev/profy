@@ -107,14 +107,14 @@ export function AvatarUploader({
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed bg-white p-4 transition ${
+        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed bg-[var(--surface-solid)] p-4 transition ${
           dragOver
             ? "border-[var(--accent)] bg-[var(--accent-soft)]"
             : "border-[var(--border-strong)] hover:border-[var(--accent)]"
         } ${busy ? "cursor-wait opacity-70" : ""}`}
       >
         {/* Preview rond */}
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[var(--surface-hover)] shadow-[var(--shadow-md)]">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-[var(--surface-solid)] bg-[var(--surface-hover)] shadow-[var(--shadow-md)]">
           {value ? (
             <Image
               src={value}

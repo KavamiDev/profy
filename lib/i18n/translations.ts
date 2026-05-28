@@ -5,12 +5,12 @@ import type { Locale } from "./locales";
  *
  * Convention de clés : `<page>.<section>.<role>`
  *
- * IMPORTANT — Cohérence culturelle EN vs FR :
+ * IMPORTANT Cohérence culturelle EN vs FR :
  * - FR cible le marché français → photo CV obligatoire, "made in France",
  *   vocabulaire FR strict (RGPD France, candidat·e francophone).
  * - EN cible les francophones expats + non-FR qui visent le marché FR.
- *   Pas de "Made for France" aux US — remplacé par "Built in Europe".
- *   "CV" → "Resume" (US) ou "CV" (UK) — on prend "Resume" comme défaut.
+ *   Pas de "Made for France" aux US  remplacé par "Built in Europe".
+ *   "CV" → "Resume" (US) ou "CV" (UK) on prend "Resume" comme défaut.
  *   On garde "Hosted in France 🇫🇷" car la souveraineté donnée = +
  *   pour TOUS les users européens.
  *
@@ -57,7 +57,7 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
     "landing.wall.title_1": "Des candidats,",
     "landing.wall.title_em": "pas des templates.",
     "landing.wall.description":
-      "Chaque Profyl est unique parce que chaque parcours l'est. Voici quelques pages — réelles, vivantes, partageables.",
+      "Chaque Profyl est unique parce que chaque parcours l'est. Voici quelques pages réelles, vivantes, partageables.",
     "landing.wall.handwritten": "↑ Le prochain pourrait être le tien.",
     "landing.wall.see": "Voir",
 
@@ -69,7 +69,7 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
       "Tape ton nom, vérifie qu'il est dispo, reçois un magic link. 30 secondes.",
     "landing.steps.2.title": "Remplis 9 blocs",
     "landing.steps.2.text":
-      "Photo, expériences, projets, langues. Tu remplis — Profyl met en forme.",
+      "Photo, expériences, projets, langues. Tu remplis, Profyl met en forme.",
     "landing.steps.3.title": "Partage ton lien",
     "landing.steps.3.text":
       "profyl.io/ton-nom + un QR code. Sur LinkedIn, ton CV, ta signature email.",
@@ -94,8 +94,8 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
     "landing.marquee.9": "Sans template à choisir",
     "landing.marquee.10": "Toujours à jour",
 
-    "footer.tagline": "Profyl · CV en ligne pour candidats francophones ·",
-    "footer.handwritten": "fait avec 🤍 à Paris",
+    "footer.tagline": "CV en ligne pour candidats francophones ·",
+    "footer.handwritten": "fait avec 🤍 à La Réunion",
     "footer.france": "hébergé en France 🇫🇷",
 
     // ---------- Pricing ----------
@@ -396,7 +396,7 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
     "landing.wall.title_1": "Real candidates,",
     "landing.wall.title_em": "not templates.",
     "landing.wall.description":
-      "Every Profyl is unique because every career is. Here are a few pages — real, alive, shareable.",
+      "Every Profyl is unique because every career is. Here are a few pages real, alive, shareable.",
     "landing.wall.handwritten": "↑ The next could be yours.",
     "landing.wall.see": "View",
 
@@ -408,7 +408,7 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
       "Type your name, check availability, get a magic link. 30 seconds.",
     "landing.steps.2.title": "Fill 9 blocks",
     "landing.steps.2.text":
-      "Photo, experience, projects, languages. You fill — Profyl handles the design.",
+      "Photo, experience, projects, languages. You fill, Profyl handles the design.",
     "landing.steps.3.title": "Share your link",
     "landing.steps.3.text":
       "profyl.io/your-name + QR code. On LinkedIn, your resume, your email signature.",
@@ -434,8 +434,8 @@ export const TRANSLATIONS: Record<Locale, Dictionary> = {
     "landing.marquee.9": "No template to pick",
     "landing.marquee.10": "Always up to date",
 
-    "footer.tagline": "Profyl · The professional resume page ·",
-    "footer.handwritten": "made with 🤍 in Paris",
+    "footer.tagline": "The professional resume page ·",
+    "footer.handwritten": "made with 🤍 in La Réunion",
     "footer.france": "GDPR-compliant EU hosting",
 
     // ---------- Pricing ----------

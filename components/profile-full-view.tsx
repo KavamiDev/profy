@@ -71,7 +71,7 @@ export function ProfileFullView({
                 aria-hidden
                 className="absolute -inset-3 rounded-full bg-gradient-to-br from-[var(--accent-soft)] to-[var(--accent-soft-2)] blur-xl"
               />
-              <div className="relative h-40 w-40 overflow-hidden rounded-full border-[5px] border-white shadow-[var(--shadow-lg)] md:h-48 md:w-48">
+              <div className="relative h-40 w-40 overflow-hidden rounded-full border-[5px] border-[var(--surface-solid)] shadow-[var(--shadow-lg)] md:h-48 md:w-48">
                 {hero.photoUrl ? (
                   <Image
                     src={hero.photoUrl}
@@ -90,7 +90,7 @@ export function ProfileFullView({
               </div>
             </div>
 
-            <p className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)] backdrop-blur">
+            <p className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-solid)]/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)] backdrop-blur">
               profyl.io/{username}
             </p>
 
@@ -142,7 +142,7 @@ export function ProfileFullView({
                 {allSkills.map((skill, idx) => (
                   <span
                     key={`${skill}-${idx}`}
-                    className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:border-[var(--border-strong)]"
+                    className="rounded-full border border-[var(--border)] bg-[var(--surface-solid)]px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:border-[var(--border-strong)]"
                   >
                     {skill}
                   </span>
@@ -156,7 +156,7 @@ export function ProfileFullView({
               <ol className="relative space-y-8 border-l border-[var(--border)] pl-8">
                 {experience.map((exp, idx) => (
                   <li key={`${exp.company}-${exp.role}-${idx}`} className="relative">
-                    <span className="absolute -left-[35px] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-[var(--accent)] shadow-[var(--shadow-sm)]" />
+                    <span className="absolute -left-[35px] top-1.5 h-3 w-3 rounded-full border-2 border-[var(--surface-solid)] bg-[var(--accent)] shadow-[var(--shadow-sm)]" />
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--foreground)]">
                         {exp.role}
@@ -184,7 +184,7 @@ export function ProfileFullView({
                 {projects.map((project, idx) => (
                   <div
                     key={`${project.name}-${idx}`}
-                    className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
+                    className="rounded-2xl border border-[var(--border)] bg-[var(--surface-solid)]p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
                   >
                     {project.link ? (
                       <a
@@ -299,7 +299,7 @@ function Section({
 
 function FactBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/60 p-5 backdrop-blur">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-solid)]/60 p-5 backdrop-blur">
       <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
         {title}
       </p>
@@ -324,7 +324,7 @@ function ContactLink({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-sm)]"
+      className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-solid)]px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-sm)]"
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-hover)] text-[var(--muted)]">
         <Icon className="h-4 w-4" />

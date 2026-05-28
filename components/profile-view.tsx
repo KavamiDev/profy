@@ -54,11 +54,11 @@ export function ProfileView({
 
   return (
     <article className={cn("card-profile", compact ? "text-[13px]" : "", className)}>
-      <div className="relative bg-gradient-to-b from-[var(--accent-soft)] via-[var(--accent-soft-2)] to-white px-6 pb-2 pt-8">
+      <div className="relative bg-gradient-to-b from-[var(--accent-soft)] via-[var(--accent-soft-2)] to-[var(--surface-solid)] px-6 pb-2 pt-8">
         <div className="mx-auto flex w-full max-w-[120px] flex-col items-center">
           <div
             className={cn(
-              "relative overflow-hidden rounded-full border-[3px] border-white bg-[var(--surface-hover)] shadow-[var(--shadow-md)]",
+              "relative overflow-hidden rounded-full border-[3px] border-[var(--surface-solid)] bg-[var(--surface-hover)] shadow-[var(--shadow-md)]",
               compact ? "h-24 w-24" : "h-28 w-28"
             )}
           >
@@ -132,7 +132,7 @@ export function ProfileView({
               {allSkills.map((skill, idx) => (
                 <span
                   key={`${skill}-${idx}`}
-                  className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[var(--foreground)]"
+                  className="rounded-full border border-[var(--border)] bg-[var(--surface-solid)] px-3 py-1 text-xs font-medium text-[var(--foreground)]"
                 >
                   {skill}
                 </span>
@@ -270,7 +270,7 @@ function ContactLink({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)] hover:shadow-[var(--shadow-sm)]"
+      className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-solid)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)] hover:shadow-[var(--shadow-sm)]"
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-hover)] text-[var(--muted)]">
         <Icon className="h-4 w-4" />

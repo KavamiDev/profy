@@ -9,11 +9,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 const accentGradient: Record<string, string> = {
-  coral: "from-[#ffe9e3] to-white",
-  lavender: "from-[#ebe6fa] to-white",
-  honey: "from-[#fdf0d9] to-white",
-  mint: "from-[#d9eee2] to-white",
-  ink: "from-[#e2e1e8] to-white"
+  coral: "from-[var(--accent-soft)] to-[var(--background-elevated)]",
+  lavender: "from-[var(--accent-soft-2)] to-[var(--background-elevated)]",
+  honey: "from-[var(--accent-soft-3)] to-[var(--background-elevated)]",
+  mint: "from-[var(--accent-soft-4)] to-[var(--background-elevated)]",
+  ink: "from-[var(--surface-hover)] to-[var(--background-elevated)]"
 };
 
 export function LandingContent({
@@ -37,7 +37,7 @@ export function LandingContent({
       {/* ---------- HERO ---------- */}
       <section className="relative mx-auto max-w-7xl px-6 pb-12 pt-8 md:pt-20">
         <div className="animate-rise-in text-center">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-white/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-strong)] shadow-[var(--shadow-sm)] backdrop-blur">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface-solid)]/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-strong)] shadow-[var(--shadow-sm)] backdrop-blur">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--accent)] opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--accent)]" />
@@ -77,7 +77,7 @@ export function LandingContent({
               {wallPersonas.slice(0, 4).map((p) => (
                 <span
                   key={p.username}
-                  className="relative h-5 w-5 overflow-hidden rounded-full border-2 border-white"
+                  className="relative h-5 w-5 overflow-hidden rounded-full border-2 border-[var(--surface-solid)]"
                 >
                   <Image src={p.photoUrl} alt="" fill className="object-cover" unoptimized />
                 </span>
@@ -173,7 +173,7 @@ export function LandingContent({
                 <div
                   className={`bg-gradient-to-b ${accentGradient[p.accent]} relative flex justify-center px-5 pb-4 pt-10`}
                 >
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-[4px] border-white shadow-[var(--shadow-md)]">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-[4px] border-[var(--surface-solid)] shadow-[var(--shadow-md)]">
                     <Image
                       src={p.photoUrl}
                       alt={p.fullName}
