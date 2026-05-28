@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm({ next }: { next?: string }) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,14 +41,14 @@ export function LoginForm({ next }: { next?: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="email">Adresse email</Label>
+        <Label htmlFor="email">{t("login.email_label")}</Label>
         <Input
           id="email"
           type="email"
           name="email"
           required
           autoFocus
-          placeholder="jean.dupont@email.com"
+          placeholder={t("login.email_placeholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -62,11 +64,11 @@ export function LoginForm({ next }: { next?: string }) {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Envoi en cours...
+            {t("login.button_loading")}
           </>
         ) : (
           <>
-            M&apos;envoyer un lien magique
+            {t("login.button")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </>
         )}
