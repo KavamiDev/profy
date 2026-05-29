@@ -14,10 +14,6 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "profyl:locale";
 
-/**
- * Script inline pour <head> qui pose `lang` sur <html> avant React.
- */
-export const localeHydrationScript = `(function(){try{var l=localStorage.getItem('${STORAGE_KEY}');if(!l){var nav=(navigator.language||'fr').toLowerCase();l=nav.startsWith('en')?'en':'fr';}document.documentElement.setAttribute('lang',l);document.documentElement.setAttribute('data-locale',l);}catch(e){document.documentElement.setAttribute('lang','fr');}})();`;
 
 export function LocaleProvider({
   children,

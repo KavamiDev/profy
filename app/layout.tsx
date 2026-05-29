@@ -1,5 +1,6 @@
-import { LocaleProvider, localeHydrationScript } from "@/components/locale-provider";
-import { ThemeProvider, themeHydrationScript } from "@/components/theme-provider";
+import { LocaleProvider } from "@/components/locale-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { localeHydrationScript, themeHydrationScript } from "@/lib/hydration-scripts";
 import { Analytics } from "@/components/analytics";
 import { isValidLocale } from "@/lib/i18n/locales";
 import type { Metadata } from "next";
