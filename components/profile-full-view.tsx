@@ -3,6 +3,7 @@
 import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 import { combinedSkills, dedupCaseInsensitive } from "@/lib/profile/dedup";
+import { formatPeriod } from "@/lib/profile/format";
 import { ContactLinks, hasAnyContact } from "@/components/profile/ContactLinks";
 import type { ProfileContent } from "@/types/profile";
 import { Briefcase, GraduationCap, Link2, MapPin, Sparkles } from "lucide-react";
@@ -109,7 +110,7 @@ export function ProfileFullView({
                 {allSkills.map((skill, idx) => (
                   <span
                     key={`${skill}-${idx}`}
-                    className="rounded-full border border-[var(--border)] bg-[var(--surface-solid)]px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:border-[var(--border-strong)]"
+                    className="rounded-full border border-[var(--border)] bg-[var(--surface-solid)] px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:border-[var(--border-strong)]"
                   >
                     {skill}
                   </span>
@@ -128,10 +129,9 @@ export function ProfileFullView({
                       <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--foreground)]">
                         {exp.role}
                       </h3>
-                      {exp.start || exp.end ? (
+                      {formatPeriod(exp.start, exp.end) ? (
                         <span className="text-sm font-medium text-[var(--muted)]">
-                          {exp.start}
-                          {exp.end ? ` – ${exp.end}` : ""}
+                          {formatPeriod(exp.start, exp.end)}
                         </span>
                       ) : null}
                     </div>
@@ -151,7 +151,7 @@ export function ProfileFullView({
                 {projects.map((project, idx) => (
                   <div
                     key={`${project.name}-${idx}`}
-                    className="rounded-2xl border border-[var(--border)] bg-[var(--surface-solid)]p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
+                    className="rounded-2xl border border-[var(--border)] bg-[var(--surface-solid)] p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
                   >
                     {project.link ? (
                       <a
@@ -183,10 +183,9 @@ export function ProfileFullView({
                   <li key={`${edu.school}-${edu.degree}-${idx}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <p className="text-lg font-semibold text-[var(--foreground)]">{edu.degree}</p>
                     <p className="text-[var(--muted-strong)]">· {edu.school}</p>
-                    {edu.start || edu.end ? (
+                    {formatPeriod(edu.start, edu.end) ? (
                       <span className="text-sm text-[var(--muted)]">
-                        {edu.start}
-                        {edu.end ? ` – ${edu.end}` : ""}
+                        {formatPeriod(edu.start, edu.end)}
                       </span>
                     ) : null}
                   </li>

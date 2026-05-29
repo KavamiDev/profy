@@ -1,3 +1,5 @@
+import type { ProfileContent } from "@/types/profile";
+
 /**
  * Dedup case-insensitive en conservant la première occurrence telle quelle.
  * Ex: ["Notion", "notion", "Figma"] → ["Notion", "Figma"]
@@ -13,8 +15,6 @@ export function dedupCaseInsensitive(items: string[]): string[] {
   }
   return result;
 }
-
-import type { ProfileContent } from "@/types/profile";
 
 export function combinedSkills(skills: ProfileContent["skills"]): string[] {
   return dedupCaseInsensitive([...skills.core, ...skills.tools]);

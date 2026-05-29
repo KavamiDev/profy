@@ -3,6 +3,7 @@
 import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 import { combinedSkills } from "@/lib/profile/dedup";
+import { formatPeriod } from "@/lib/profile/format";
 import { ContactLinks, hasAnyContact } from "@/components/profile/ContactLinks";
 import type { ProfileContent } from "@/types/profile";
 import type { ComponentType, ReactNode } from "react";
@@ -115,7 +116,7 @@ export function ProfileView({
                 <p className="font-medium">{exp.role}</p>
                 <p className="text-sm text-[var(--muted)]">
                   {exp.company}
-                  {exp.start || exp.end ? ` · ${exp.start}${exp.end ? ` – ${exp.end}` : ""}` : ""}
+                  {formatPeriod(exp.start, exp.end) ? ` · ${formatPeriod(exp.start, exp.end)}` : ""}
                 </p>
                 {exp.description ? (
                   <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -134,7 +135,7 @@ export function ProfileView({
                 <p className="font-medium">{edu.degree}</p>
                 <p className="text-sm text-[var(--muted)]">
                   {edu.school}
-                  {edu.start || edu.end ? ` · ${edu.start}${edu.end ? ` – ${edu.end}` : ""}` : ""}
+                  {formatPeriod(edu.start, edu.end) ? ` · ${formatPeriod(edu.start, edu.end)}` : ""}
                 </p>
               </div>
             ))}
