@@ -1,5 +1,6 @@
 import type { Locale } from "../locales";
 import { common } from "./common";
+import { consent } from "./consent";
 import { dashboard } from "./dashboard";
 import { landing } from "./landing";
 import { login } from "./login";
@@ -14,6 +15,7 @@ import type { NamespaceMessages } from "./types";
  */
 const namespaces: NamespaceMessages[] = [
   common,
+  consent,
   landing,
   pricing,
   login,

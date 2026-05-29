@@ -1,5 +1,6 @@
 import { LocaleProvider, localeHydrationScript } from "@/components/locale-provider";
 import { ThemeProvider, themeHydrationScript } from "@/components/theme-provider";
+import { Analytics } from "@/components/analytics";
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
@@ -41,7 +42,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen antialiased">
         <ThemeProvider>
-          <LocaleProvider>{children}</LocaleProvider>
+          <LocaleProvider>
+            {children}
+            {/* Google Analytics (gtag.js), chargé uniquement après consentement. */}
+            <Analytics />
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>
