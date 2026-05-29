@@ -1,9 +1,33 @@
 import { LandingContent } from "@/components/landing-content";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { DEMO_USERNAME, wallPersonas } from "@/lib/demo-persona";
+import { DEMO_USERNAME, composeWall } from "@/lib/demo-persona";
+import {
+  getPublishedProfilesCount,
+  getRecentPublishedProfiles
+} from "@/lib/server/profiles-store";
+import { unstable_cache } from "next/cache";
 
-export default function HomePage() {
+// Données réelles (compteur + mur), mises en cache 5 min et invalidées à
+// chaque publication via revalidateTag("landing") → landing reste en ISR.
+export const revalidate = 300;
+
+const getLandingData = unstable_cache(
+  async () => {
+    const [publishedCount, realProfiles] = await Promise.all([
+      getPublishedProfilesCount(),
+      getRecentPublishedProfiles(6)
+    ]);
+    return { publishedCount, realProfiles };
+  },
+  ["landing-data"],
+  { revalidate: 300, tags: ["landing"] }
+);
+
+export default async function HomePage() {
+  const { publishedCount, realProfiles } = await getLandingData();
+  const wallPersonas = composeWall(realProfiles, 6);
+
   return (
     <div className="grain relative min-h-screen overflow-hidden">
       {/* Background mesh */}
@@ -25,7 +49,11 @@ export default function HomePage() {
       </div>
 
       <SiteHeader showPricing showExample demoUsername={DEMO_USERNAME} />
-      <LandingContent demoUsername={DEMO_USERNAME} wallPersonas={wallPersonas} />
+      <LandingContent
+        demoUsername={DEMO_USERNAME}
+        wallPersonas={wallPersonas}
+        publishedCount={publishedCount}
+      />
       <SiteFooter />
     </div>
   );

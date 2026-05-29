@@ -3,7 +3,7 @@
 import { saveOwnProfile } from "@/lib/server/profiles-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { profileContentSchema, usernameSchema } from "@/lib/validators/profile";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function saveProfile(formData: FormData) {
@@ -54,6 +54,7 @@ export async function saveProfile(formData: FormData) {
 
   revalidatePath(`/${username}`);
   revalidatePath("/");
+  updateTag("landing"); // rafraîchit compteur + mur de la landing
   redirect(`/dashboard?saved=1`);
 }
 

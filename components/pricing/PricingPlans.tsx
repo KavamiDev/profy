@@ -2,6 +2,7 @@
 
 import { useT } from "@/components/locale-provider";
 import { PlanCard } from "@/components/pricing/PlanCard";
+import { ProPlanCard } from "@/components/pricing/ProPlanCard";
 import { plans } from "@/components/pricing/plans";
 import { Check } from "lucide-react";
 
@@ -22,14 +23,37 @@ export function PricingHero() {
   );
 }
 
-export function PricingPlans() {
+// Statuts de retour Stripe (ou seam) → message + style de bannière.
+const STATUS_BANNERS: Record<string, { key: string; tone: "info" | "error" }> = {
+  checkout_soon: { key: "pricing.checkout_soon", tone: "info" },
+  cancelled: { key: "pricing.cancelled", tone: "info" },
+  error: { key: "pricing.error", tone: "error" }
+};
+
+export function PricingPlans({ status }: { status?: string }) {
   const t = useT();
+  const banner = status ? STATUS_BANNERS[status] : undefined;
   return (
     <section className="px-6 pb-24 md:pb-32">
+      {banner ? (
+        <div
+          className={`mx-auto mb-8 max-w-2xl rounded-xl border px-4 py-3 text-center text-sm shadow-[var(--shadow-sm)] ${
+            banner.tone === "error"
+              ? "border-red-200 bg-red-50 text-red-800"
+              : "border-[var(--border)] bg-[var(--surface-solid)] text-[var(--foreground)]"
+          }`}
+        >
+          {t(banner.key)}
+        </div>
+      ) : null}
       <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-        {plans.map((plan) => (
-          <PlanCard key={plan.key} plan={plan} />
-        ))}
+        {plans.map((plan) =>
+          plan.key === "pro" ? (
+            <ProPlanCard key={plan.key} plan={plan} />
+          ) : (
+            <PlanCard key={plan.key} plan={plan} />
+          )
+        )}
       </div>
 
       <div className="mx-auto mt-10 flex max-w-2xl flex-col items-center gap-3 text-center text-sm text-[var(--muted)] sm:flex-row sm:justify-center sm:gap-6">

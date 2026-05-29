@@ -1,5 +1,6 @@
 import { FloatingEditButton } from "@/components/floating-edit-button";
 import { ProfileFullView } from "@/components/profile-full-view";
+import { ViewTracker } from "@/components/profile/ViewTracker";
 import { PublicProfileFooter, PublicProfileHeader } from "@/components/public-profile-chrome";
 import { getProfileByUsername } from "@/lib/server/profiles-store";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -56,6 +57,11 @@ export default async function PublicProfilePage({
       </div>
 
       {isOwner ? <FloatingEditButton /> : null}
+
+      {/* Analytics : on ne track ni l'embed, ni le owner, ni la démo. */}
+      {!isEmbed && !isOwner && profile.id !== "demo" ? (
+        <ViewTracker username={profile.username} />
+      ) : null}
 
       <PublicProfileFooter username={profile.username} />
     </div>

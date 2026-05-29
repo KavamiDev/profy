@@ -19,6 +19,9 @@ export type Database = {
           content: ProfileContent;
           plan: "free" | "pro" | "studio";
           status: "draft" | "published";
+          pro_until: string | null;
+          custom_domain: string | null;
+          custom_domain_verified: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -29,6 +32,9 @@ export type Database = {
           content?: ProfileContent;
           plan?: "free" | "pro" | "studio";
           status?: "draft" | "published";
+          pro_until?: string | null;
+          custom_domain?: string | null;
+          custom_domain_verified?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -39,8 +45,35 @@ export type Database = {
           content?: ProfileContent;
           plan?: "free" | "pro" | "studio";
           status?: "draft" | "published";
+          pro_until?: string | null;
+          custom_domain?: string | null;
+          custom_domain_verified?: boolean;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      profile_views: {
+        Row: {
+          id: string;
+          profile_id: string;
+          viewed_at: string;
+          referer_host: string | null;
+          country: string | null;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          viewed_at?: string;
+          referer_host?: string | null;
+          country?: string | null;
+        };
+        Update: {
+          id?: string;
+          profile_id?: string;
+          viewed_at?: string;
+          referer_host?: string | null;
+          country?: string | null;
         };
         Relationships: [];
       };
@@ -51,6 +84,24 @@ export type Database = {
         };
         Insert: { username: string; reason?: string | null };
         Update: { username?: string; reason?: string | null };
+        Relationships: [];
+      };
+      stripe_events: {
+        Row: {
+          id: string;
+          type: string;
+          received_at: string;
+        };
+        Insert: {
+          id: string;
+          type: string;
+          received_at?: string;
+        };
+        Update: {
+          id?: string;
+          type?: string;
+          received_at?: string;
+        };
         Relationships: [];
       };
     };

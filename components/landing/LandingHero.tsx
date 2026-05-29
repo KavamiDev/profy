@@ -1,18 +1,18 @@
 "use client";
 
+import { HeroClaim } from "@/components/landing/HeroClaim";
 import { useT } from "@/components/locale-provider";
-import { Button } from "@/components/ui/button";
 import type { WallPersona } from "@/lib/demo-persona";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export function LandingHero({
   demoUsername,
-  wallPersonas
+  wallPersonas,
+  publishedCount
 }: {
   demoUsername: string;
   wallPersonas: WallPersona[];
+  publishedCount: number;
 }) {
   const t = useT();
 
@@ -40,21 +40,9 @@ export function LandingHero({
           </span>
         </p>
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <Link href="/dashboard">
-            <Button variant="accent" size="lg" className="w-full animate-pulse-coral sm:w-auto">
-              {t("landing.cta.primary")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href={`/${demoUsername}`}>
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-              {t("landing.cta.secondary")}
-            </Button>
-          </Link>
-        </div>
+        <HeroClaim demoUsername={demoUsername} />
 
-        <p className="mt-5 inline-flex items-center gap-2 text-sm text-[var(--muted)]">
+        <p className="mt-6 inline-flex items-center gap-2 text-sm text-[var(--muted)]">
           <span className="inline-flex -space-x-1.5">
             {wallPersonas.slice(0, 4).map((p) => (
               <span
@@ -65,7 +53,13 @@ export function LandingHero({
               </span>
             ))}
           </span>
-          <span>{t("landing.proof")}</span>
+          <span>
+            {publishedCount === 0
+              ? t("landing.proof_empty")
+              : publishedCount === 1
+                ? t("landing.proof_one")
+                : t("landing.proof", { count: publishedCount })}
+          </span>
         </p>
       </div>
     </section>

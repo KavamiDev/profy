@@ -10,6 +10,7 @@ export function PricingComparison() {
     { label: t("pricing.row.education"), free: "4", pro: t("pricing.row.value.unlimited") },
     { label: t("pricing.row.projects"), free: "6", pro: t("pricing.row.value.unlimited") },
     { label: t("pricing.row.skills"), free: "15", pro: t("pricing.row.value.unlimited") },
+    { label: t("pricing.row.views"), free: t("pricing.row.value.dash"), pro: "✓" },
     { label: t("pricing.row.domain"), free: t("pricing.row.value.dash"), pro: "✓" },
     { label: t("pricing.row.multi"), free: "1", pro: t("pricing.row.value.up_to_5") },
     { label: t("pricing.row.pdf"), free: t("pricing.row.value.dash"), pro: "✓" },

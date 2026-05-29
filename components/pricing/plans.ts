@@ -34,6 +34,6 @@ export const plans: PlanDef[] = [
     price: { monthly: "5 €", annual: "50 €" },
     highlight: true,
     icon: Zap,
-    featureKeys: Array.from({ length: 9 }, (_, i) => `pricing.pro.feature.${i + 1}`)
+    featureKeys: Array.from({ length: 10 }, (_, i) => `pricing.pro.feature.${i + 1}`)
   }
 ];

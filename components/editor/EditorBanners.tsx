@@ -4,13 +4,26 @@ import Link from "next/link";
 import { useT } from "@/components/locale-provider";
 import { useEditorStore } from "@/lib/editor/store";
 
-export function EditorBanners({ saved, error }: { saved?: boolean; error?: string }) {
+export function EditorBanners({
+  saved,
+  error,
+  proActivated
+}: {
+  saved?: boolean;
+  error?: string;
+  proActivated?: boolean;
+}) {
   const t = useT();
   const username = useEditorStore((s) => s.username);
   const restoredFromDraft = useEditorStore((s) => s.restoredFromDraft);
 
   return (
     <>
+      {proActivated ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {t("dashboard.pro_activated")}
+        </div>
+      ) : null}
       {saved ? (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           ✓ {t("dashboard.saved", { url: "" }).replace("{url}", "").trim()}{" "}

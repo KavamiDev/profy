@@ -87,6 +87,8 @@ export type WallPersona = {
   photoUrl: string;
   accent: "coral" | "lavender" | "honey" | "mint" | "ink";
   rotate: number;
+  /** true = persona de démonstration (pas un vrai inscrit) → badge "Exemple". */
+  isExample?: boolean;
 };
 
 export const wallPersonas: WallPersona[] = [
@@ -151,3 +153,32 @@ export const wallPersonas: WallPersona[] = [
     rotate: 1
   }
 ];
+
+const WALL_ACCENTS = ["coral", "lavender", "honey", "mint", "ink"] as const;
+const WALL_ROTATES = [-2, 1.5, -1, 2.5, -2.5, 1];
+
+/**
+ * Compose le mur de la landing : vrais profils publiés d'abord, puis on
+ * complète avec les personas de démo (marqués `isExample`) jusqu'à `limit`.
+ * Garantit un mur toujours rempli même quand peu de candidats sont inscrits,
+ * sans jamais faire passer un exemple pour un vrai inscrit.
+ */
+export function composeWall(
+  real: { username: string; fullName: string; title: string; location: string; photoUrl: string }[],
+  limit = 6
+): WallPersona[] {
+  const cards: WallPersona[] = real.slice(0, limit).map((c, i) => ({
+    ...c,
+    accent: WALL_ACCENTS[i % WALL_ACCENTS.length],
+    rotate: WALL_ROTATES[i % WALL_ROTATES.length],
+    isExample: false
+  }));
+
+  const used = new Set(cards.map((c) => c.username));
+  for (const persona of wallPersonas) {
+    if (cards.length >= limit) break;
+    if (used.has(persona.username)) continue;
+    cards.push({ ...persona, isExample: true });
+  }
+  return cards;
+}

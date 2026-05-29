@@ -7,7 +7,12 @@ export const metadata = {
   description: "Free or Pro at 5 €/month. Simple."
 };
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
   return (
     <div className="grain relative min-h-screen overflow-hidden">
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
@@ -28,7 +33,7 @@ export default function PricingPage() {
       </div>
 
       <SiteHeader showPricing={false} />
-      <PricingContent />
+      <PricingContent status={status} />
       <SiteFooter />
     </div>
   );

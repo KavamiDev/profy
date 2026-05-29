@@ -40,13 +40,18 @@ export function LandingWall({
           {wallPersonas.map((p) => (
             <Link
               key={p.username}
-              href={p.username === demoUsername ? `/${demoUsername}` : "/dashboard"}
+              href={p.isExample ? `/${demoUsername}` : `/${p.username}`}
               className="card-mini block"
               style={{ transform: `rotate(${p.rotate}deg)` }}
             >
               <div
                 className={`bg-gradient-to-b ${accentGradient[p.accent]} relative flex justify-center px-5 pb-4 pt-10`}
               >
+                {p.isExample && (
+                  <span className="absolute left-3 top-3 rounded-full bg-[var(--surface-solid)]/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] backdrop-blur">
+                    {t("landing.wall.example_badge")}
+                  </span>
+                )}
                 <div className="relative h-24 w-24 overflow-hidden rounded-full border-[4px] border-[var(--surface-solid)] shadow-[var(--shadow-md)]">
                   <Image
                     src={p.photoUrl}

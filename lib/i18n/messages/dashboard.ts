@@ -7,9 +7,12 @@ export const dashboard: NamespaceMessages = {
     "dashboard.preview_live": "Aperçu live",
     "dashboard.see_example": "Exemple",
     "dashboard.see_page": "Voir la page",
+    "dashboard.export_pdf": "Export PDF",
     "dashboard.saved": "✓ Profil publié avec succès — visite {url}",
     "dashboard.draft_restored":
       "📝 Brouillon récupéré automatiquement — on a restauré ce que tu avais commencé à remplir.",
+    "dashboard.pro_activated":
+      "🎉 Paiement confirmé — ton accès Pro est activé. Profite des stats, de l'export PDF et du domaine perso.",
     "dashboard.error.username_reserve": "Ce username est réservé.",
     "dashboard.error.username_invalide":
       "Username invalide (3–30 caractères, minuscules, chiffres, tirets).",
@@ -109,9 +112,12 @@ export const dashboard: NamespaceMessages = {
     "dashboard.preview_live": "Live preview",
     "dashboard.see_example": "Example",
     "dashboard.see_page": "View page",
+    "dashboard.export_pdf": "Export PDF",
     "dashboard.saved": "✓ Profile published — visit {url}",
     "dashboard.draft_restored":
       "📝 Draft auto-recovered — we restored what you had started.",
+    "dashboard.pro_activated":
+      "🎉 Payment confirmed — your Pro access is active. Enjoy stats, PDF export and your custom domain.",
     "dashboard.error.username_reserve": "This username is reserved.",
     "dashboard.error.username_invalide":
       "Invalid username (3–30 chars, lowercase, digits, dashes).",

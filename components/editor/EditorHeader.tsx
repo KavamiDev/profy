@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, LogOut, Save } from "lucide-react";
+import { BarChart3, Download, ExternalLink, Globe, LogOut, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { useT } from "@/components/locale-provider";
@@ -34,6 +34,29 @@ export function EditorHeader({ userEmail }: { userEmail: string }) {
               <ExternalLink className="h-4 w-4" />
             </Link>
           ) : null}
+          <Link
+            href="/dashboard/stats"
+            className="hidden items-center gap-2 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
+          >
+            <BarChart3 className="h-4 w-4" />
+            {t("stats.nav")}
+          </Link>
+          {/* Endpoint de téléchargement (route handler), pas une page → <a> volontaire. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a
+            href="/api/pdf"
+            className="hidden items-center gap-2 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
+          >
+            <Download className="h-4 w-4" />
+            {t("dashboard.export_pdf")}
+          </a>
+          <Link
+            href="/dashboard/domain"
+            className="hidden items-center gap-2 text-sm text-[var(--muted)] transition hover:text-[var(--foreground)] sm:inline-flex"
+          >
+            <Globe className="h-4 w-4" />
+            {t("domain.nav")}
+          </Link>
           <Button type="submit" form="profile-form" variant="accent" size="sm">
             <Save className="mr-2 h-4 w-4" />
             {t("dashboard.publish")}

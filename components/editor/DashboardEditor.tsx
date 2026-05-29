@@ -26,6 +26,7 @@ export function DashboardEditor({
   initialContent = defaultProfileContent,
   saved,
   error,
+  proActivated,
   plan = "free",
   userEmail = "",
   userId = ""
@@ -34,6 +35,7 @@ export function DashboardEditor({
   initialContent?: ProfileContent;
   saved?: boolean;
   error?: string;
+  proActivated?: boolean;
   plan?: PlanTier;
   userEmail?: string;
   userId?: string;
@@ -54,7 +56,7 @@ export function DashboardEditor({
         <EditorPreviewMobile />
 
         <div className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-4 py-8 lg:px-6">
-          <EditorBanners saved={saved} error={error} />
+          <EditorBanners saved={saved} error={error} proActivated={proActivated} />
 
           <form id="profile-form" action={saveProfile} className="space-y-5">
             <EditorContentField />
