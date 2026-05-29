@@ -19,16 +19,27 @@ const STORAGE_KEY = "profyl:locale";
  */
 export const localeHydrationScript = `(function(){try{var l=localStorage.getItem('${STORAGE_KEY}');if(!l){var nav=(navigator.language||'fr').toLowerCase();l=nav.startsWith('en')?'en':'fr';}document.documentElement.setAttribute('lang',l);document.documentElement.setAttribute('data-locale',l);}catch(e){document.documentElement.setAttribute('lang','fr');}})();`;
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+export function LocaleProvider({
+  children,
+  initialLocale
+}: {
+  children: ReactNode;
+  initialLocale?: Locale;
+}) {
+  // initialLocale vient du layout SSR (lu depuis cookie) → pas de mismatch.
+  // Fallback sur DEFAULT_LOCALE pour les navigations sans cookie (premier visit).
+  const [locale, setLocaleState] = useState<Locale>(initialLocale ?? DEFAULT_LOCALE);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const applied = document.documentElement.getAttribute("data-locale");
-    if (applied && isValidLocale(applied)) {
+    if (applied && isValidLocale(applied) && applied !== locale) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocaleState(applied);
+      setLocaleState(applied as Locale);
     }
+    // Uniquement au montage — on synchronise si le script inline a détecté
+    // une locale différente de ce qu'on a reçu du serveur.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setLocale = useCallback((l: Locale) => {
@@ -36,6 +47,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem(STORAGE_KEY, l);
+        // Cookie lu par le layout SSR au prochain chargement → plus de mismatch.
+        document.cookie = `${STORAGE_KEY}=${l};path=/;max-age=31536000;samesite=lax`;
       } catch {
         /* ignore */
       }

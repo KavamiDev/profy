@@ -1,8 +1,10 @@
 import { LocaleProvider, localeHydrationScript } from "@/components/locale-provider";
 import { ThemeProvider, themeHydrationScript } from "@/components/theme-provider";
 import { Analytics } from "@/components/analytics";
+import { isValidLocale } from "@/lib/i18n/locales";
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,11 +27,15 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("profyl:locale")?.value;
+  const initialLocale = cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : undefined;
+
   return (
     <html lang="fr" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
@@ -42,7 +48,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen antialiased">
         <ThemeProvider>
-          <LocaleProvider>
+          <LocaleProvider initialLocale={initialLocale}>
             {children}
             {/* Google Analytics (gtag.js), chargé uniquement après consentement. */}
             <Analytics />
