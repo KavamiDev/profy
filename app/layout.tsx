@@ -2,7 +2,18 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { localeHydrationScript, themeHydrationScript } from "@/lib/hydration-scripts";
 import { Analytics } from "@/components/analytics";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isValidLocale } from "@/lib/i18n/locales";
+import {
+  SITE_DEFAULT_TITLE,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_LOCALE,
+  SITE_NAME,
+  SITE_TITLE_TEMPLATE,
+  SITE_URL
+} from "@/lib/seo";
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { cookies } from "next/headers";
@@ -19,12 +30,53 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Profyl — Ton CV en ligne, toujours à jour",
-  description: "Crée ton profil professionnel partageable en moins de 10 minutes.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_DEFAULT_TITLE,
+    template: SITE_TITLE_TEMPLATE
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "technology",
+  alternates: {
+    canonical: "/"
+  },
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false
+  },
+  openGraph: {
+    type: "website",
+    locale: SITE_LOCALE,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_DEFAULT_TITLE,
+    description: SITE_DESCRIPTION
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_DEFAULT_TITLE,
+    description: SITE_DESCRIPTION
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1
+    }
+  },
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" }
-    ]
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }]
   }
 };
 
@@ -53,6 +105,9 @@ export default async function RootLayout({
             {children}
             {/* Google Analytics (gtag.js), chargé uniquement après consentement. */}
             <Analytics />
+            {/* Vercel Web Analytics (cookieless, sans consentement) + Core Web Vitals (RUM). */}
+            <VercelAnalytics />
+            <SpeedInsights />
           </LocaleProvider>
         </ThemeProvider>
       </body>

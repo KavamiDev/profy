@@ -1,7 +1,13 @@
 import { AmbientBackground } from "@/components/ambient-background";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Profil introuvable",
+  robots: { index: false, follow: true }
+};
 
 export default function NotFound() {
   return (

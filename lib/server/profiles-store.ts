@@ -221,6 +221,28 @@ export async function getRecentPublishedProfiles(limit = 6): Promise<PublicProfi
   return cards;
 }
 
+/**
+ * Slugs + date de mise à jour de tous les profils publiés, pour le sitemap.
+ * Client admin (route publique non authentifiée). Limité pour rester borné.
+ */
+export async function getAllPublishedProfileSlugs(
+  limit = 5000
+): Promise<{ username: string; updatedAt: string }[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("username, updated_at")
+    .eq("status", "published")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return data.map((row) => ({
+    username: row.username as string,
+    updatedAt: (row.updated_at as string) ?? new Date().toISOString()
+  }));
+}
+
 function rowToProfile(row: {
   id: string;
   user_id: string;

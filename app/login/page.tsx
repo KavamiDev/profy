@@ -1,11 +1,14 @@
 import { LoginContent } from "@/components/login-content";
 import { Logo } from "@/components/logo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Connexion — Profyl"
+export const metadata: Metadata = {
+  title: "Connexion",
+  description: "Connectez-vous à Profyl pour créer et mettre à jour votre CV en ligne.",
+  robots: { index: false, follow: true }
 };
 
 export default async function LoginPage({
