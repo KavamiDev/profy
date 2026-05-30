@@ -6,6 +6,7 @@ import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { isValidLocale } from "@/lib/i18n/locales";
 import {
+  GOOGLE_SITE_VERIFICATION,
   SITE_DEFAULT_TITLE,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -44,6 +45,9 @@ export const metadata: Metadata = {
   category: "technology",
   alternates: {
     canonical: "/"
+  },
+  verification: {
+    google: GOOGLE_SITE_VERIFICATION
   },
   formatDetection: {
     telephone: false,

@@ -56,6 +56,9 @@ export const SITE_KEYWORDS = [
 
 export const SITE_LOCALE = "fr_FR";
 
+/** Code de vérification Google Search Console (balise google-site-verification). */
+export const GOOGLE_SITE_VERIFICATION = "joP_bMm1qHPXUmxBCe6fdXJ4keK5Xoh7PfDk3BTReCA";
+
 /** Construit une URL absolue à partir d'un chemin relatif. */
 export function absoluteUrl(path = "/"): string {
   if (path.startsWith("http")) return path;
